@@ -1,127 +1,143 @@
 # The Outpost
 
-A portfolio you can walk around. Ping the penguin waits on a sunrise (or starry
-night) shore, dives into an underwater cavern, and five objects down there open
-close up panels: skills, projects, experience, the art studio and a mailbox.
-VIEW RESUME opens the CV itself, and a toggle swaps the sky.
+An interactive portfolio website you explore like a small game.
 
-## Quick start
+A penguin guide named Ping stands on a seaside cliff. Dive in and the view
+travels down into an underwater cavern, where five objects each open a panel:
+
+| Object | Opens |
+| --- | --- |
+| Bookshelf | Skills, grouped by shelf |
+| Computer | Projects, as a terminal you can browse |
+| Bulletin board | Work experience and education |
+| Easel and frames | An art gallery |
+| Mailbox | Contact links and a message form |
+
+A sidebar gives direct links to every panel, a **VIEW RESUME** button shows the
+CV as pages with a PDF download, and a switch changes the sky between sunrise
+and a starry night.
+
+## Run it on your computer
+
+You only need **Python 3** (preinstalled on macOS and most Linux systems).
 
 ```
 python3 gen/build.py     # build the page
-python3 gen/serve.py     # preview it at http://localhost:8000
+python3 gen/serve.py     # open http://localhost:8000
 ```
 
-Python 3 is the only requirement.
+After changing any file, run `python3 gen/build.py` again and refresh the
+browser.
 
-## Layout
+## How it is built
+
+There is no framework, no package manager and nothing to install.
+
+* **One page.** The whole site is a single 1440 by 900 scene that scales to
+  fit the browser window. Its markup, styles and logic live in one template,
+  `gen/main_template.html`.
+* **Content kept separately.** Every fact shown on the site (skills, projects,
+  jobs, links, artwork) lives in one file, `gen/content.py`. A build script
+  merges it into the template, so a change is made in one place only.
+* **A tiny runtime.** The template uses a small set of tags: `{{name}}` inserts
+  a value, `<sc-if>` shows something conditionally and `<sc-for>` repeats it.
+  `static/dc-runtime.js` (about 200 lines) turns that into the live page in the
+  browser.
+* **Built in checks.** Every build is checked for common mistakes, such as a
+  missing value or an unclosed tag, and nothing is written if a check fails.
+* **Graphics.** The scenery is drawn with SVG and CSS. Characters, artwork and
+  resume pages are image files, kept crisp with `image-rendering: pixelated`.
+* **Fonts.** Press Start 2P for labels and VT323 for text, from Google Fonts.
+* **Contact.** The message form opens the visitor's own email app with the
+  message filled in, so no server is needed.
+
+## Project structure
 
 ```
-gen/                        everything you edit, plus the build
-  content.py                every fact on the site, written once, start here
-  main_template.html        the page: markup, styles and the component class
-  panels.py                 turns content.py into markup and JS for the template
-  parts.json                sprite markup (reef, fish, mailbox, logos)
-  build.py                  fills the template, runs the checks, writes build/
-  check.py                  the checks a build must pass
-  serve.py                  local preview server
-  export.py                 the static website for GitHub Pages, into site/
-  resume_pages.js           turns the resume PDF into page images (macOS only)
+gen/                           source code and build scripts
+  content.py                   all site content, start here
+  main_template.html           the page: layout, styles and interactive logic
+  panels.py                    turns content.py into pieces of the page
+  parts.json                   pixel art for the reef, fish, mailbox and icons
+  build.py                     assembles the page and runs the checks
+  check.py                     the checks every build must pass
+  serve.py                     local preview server
+  export.py                    produces the final website folder, site/
+  resume_pages.js              turns a resume PDF into page images (macOS only)
 static/
-  dc-runtime.js             the small runtime that renders the page
-  _blob/                    every image and the resume PDF, named <id>.<ext>
-.github/workflows/pages.yml build, export and deploy to GitHub Pages
-
-Generated, not committed: build/ (build.py), site/ (export.py), out/ (resume_pages.js)
+  dc-runtime.js                runs the page in the browser
+  _blob/                       images and the resume PDF
+.github/workflows/pages.yml    publishes the site to GitHub Pages
 ```
 
-## How it works
+`build/`, `site/` and `out/` are created by the scripts and are not part of the
+repository.
 
-No framework, no bundler, no package manager, no dependencies.
+## Making changes
 
-* **The page** is one 1440x900 artboard in `gen/main_template.html`: plain
-  HTML with inline styles, one `<style>` block for animations and shared
-  classes, and one JavaScript class, `Component extends DCLogic`, that holds
-  state and returns the values the markup reads.
-* **Templating:** `{{hole}}` for values, `<sc-if>` for branches, `<sc-for>` for
-  repeats, `onClick="{{fn}}"` for events. `static/dc-runtime.js` renders it in
-  the browser and scales the artboard to fit the window. The format comes from
-  claude.ai Design artifacts, where the page was first built.
-* **The build:** `%%NAME%%` placeholders in the template are filled by
-  `build.py`, from `panels.py` (content) and `parts.json` (sprites).
-* **Graphics:** scenery is inline SVG and CSS shapes. Ping, the painting, the
-  artwork and the resume pages are images, drawn at whole number scales with
-  `image-rendering: pixelated`.
-* **Fonts:** Press Start 2P for labels and VT323 for body text, from Google Fonts.
-* **Contact:** the mailbox builds a `mailto:` link, so the visitor's own mail
-  app sends the letter. There is no server.
+**Text, skills, projects, experience and links:** edit `gen/content.py` and
+rebuild. For example, the skills panel is the `SKILL_SHELVES` list, one line
+per shelf with its name, colour and skills.
 
-## Common changes
+**Other wording** (the welcome message, the guide's speech lines, the sky
+descriptions) is in `gen/main_template.html`.
 
-**Text, dates, projects, skills, links.** Edit `gen/content.py`, then
-`python3 gen/build.py`. The skills archive is `SKILL_SHELVES` (one line per
-shelf: name, colour, skills). The sidebar, contact panel and mail link read
-`NAME`, `ROLE`, `EMAIL` and `LINKEDIN_*` from there.
+**Images and files** live in `static/_blob/`, each named with an id plus its
+extension, for example `3df64a6d88fe4f43c3836fb9e775d86e.png`. The site refers
+to them as `/_blob/<id>`. To add one, copy it in under a new id (`md5 -q
+<file>` prints a suitable one on macOS) and use that id in `content.py`.
 
-**Copy that is not a CV fact** (the welcome card, Ping's lines, the sky notes)
-lives in `gen/main_template.html`. Rebuild after editing.
+**A new resume:**
 
-**A new resume.**
-
-1. From the project folder, render its pages:
-   `osascript -l JavaScript gen/resume_pages.js path/to/new.pdf`, which writes
-   `out/resume-page-N.png`.
-2. Copy the PDF and each page image into `static/_blob/` as `<id>.<ext>`, and
-   put those `/_blob/<id>` values in `RESUME_PDF_BLOB` and `RESUME_PAGES` in
-   `content.py`. Any 32 hex characters make an id; `md5 -q <file>` gives one.
-   Delete the old files from `static/_blob/`.
+1. Render its pages:
+   `osascript -l JavaScript gen/resume_pages.js path/to/resume.pdf`
+   (writes `out/resume-page-1.png`, `out/resume-page-2.png` and so on).
+2. Copy the PDF and the page images into `static/_blob/` under new ids, delete
+   the old ones, and update `RESUME_PDF_BLOB` and `RESUME_PAGES` in
+   `content.py`.
 3. Rebuild and check the preview.
 
-**New artwork.** Copy the image into `static/_blob/` as `<id>.<ext>`, add
-`/_blob/<id>` and a line of alt text to `ARTWORKS` in `content.py`, and rebuild.
-The wall is a three column grid that grows by itself.
+**New artwork:** copy the image into `static/_blob/`, add its id and a short
+description to `ARTWORKS` in `content.py`, and rebuild. The gallery grid grows
+by itself.
 
-**The typewriter line.** Any element with `class="typed"` types itself out.
-Set `--n` in its style to the number of characters, or the line is cut off.
+**The typing effect:** any element with `class="typed"` types itself out. Set
+`--n` in its style to the number of characters in the text.
 
-## Deploying
+## Publishing
 
-Push to `main`. The workflow in `.github/workflows/pages.yml` runs `build.py`
-and `export.py` and publishes `site/` to GitHub Pages; the Actions tab shows
-progress. (First time setup: **Settings > Pages > Source: GitHub Actions**.)
+The site is published with GitHub Pages. Every push to the `main` branch runs
+the workflow in `.github/workflows/pages.yml`, which builds the site and
+publishes it. Progress shows in the repository's **Actions** tab.
 
-To see exactly what will be published:
+To set it up in a new repository, open **Settings > Pages** and set
+**Source** to **GitHub Actions**. If a deploy fails, start a new run from
+**Actions > Deploy to GitHub Pages > Run workflow** rather than re running the
+failed one.
+
+To preview exactly what gets published:
 
 ```
 python3 gen/build.py && python3 gen/export.py
-cd site && python3 -m http.server 8001     # http://localhost:8001
+cd site && python3 -m http.server 8001     # open http://localhost:8001
 ```
 
-## House rules
+The `site/` folder is plain static files, so it can also be hosted on Netlify,
+Vercel, Cloudflare Pages or any web server. Use the build command
+`python3 gen/build.py && python3 gen/export.py` and the output folder `site`.
 
-* **Never touch the DOM from the component class.** No `document.*`,
-  `innerHTML`, `appendChild`, `createElement`, `Blob` or `URL`. Inputs are
-  controlled through state; files are plain `<a download>` links.
-* **Controlled inputs use `onChange`**, not `onInput`.
-* **`{{hole}}` is a lookup, never an expression.** Compute in `renderVals()`.
-* **Every `<sc-if>` and `<sc-for>` needs its `hint-*` attribute.**
-* **No em or en dashes in copy.**
-* **Pixel font labels use plain letters.** Press Start 2P has no capital
-  accented letters, so labels say RESUME, not RÉSUMÉ. Body text can use them.
+## Rules for editing the template
 
-These keep the page valid for the Design format it comes from. `gen/check.py`
-runs on every build and blocks the write if any fail: every `{{hole}}`
-resolves; paired tags balance; every `<sc-if>` and `<sc-for>` has its hint; no
-banned DOM calls; no `onInput`; no expressions in holes; no em or en dashes,
-however they are written; and the component class parses as JavaScript
-(`node --check`, or a bracket balance fallback without node).
+The build checks enforce these, because breaking them makes parts of the page
+silently disappear:
 
-## The component class
-
-`renderVals()` is composed of four parts:
-
-* `palette(night)`: every colour that depends on the sky
-* `scenery()`: the procedural lists (stars, bubbles, shelves), all drawn from one
-  seed so they fall the same way on every render
-* `navigation(st, night)`: the sidebar rows and the place name
-* `renderVals()`: state, the three above, and the event handlers
+* The JavaScript class in the template never edits the page directly (no
+  `document`, `innerHTML` and similar). It only updates its state, and the
+  runtime redraws the page.
+* Text inputs use `onChange`, not `onInput`.
+* `{{name}}` looks up a value; it cannot contain a calculation. Calculate it in
+  `renderVals()` instead.
+* Every `<sc-if>` and `<sc-for>` carries a `hint-*` attribute.
+* Text on the page uses no em or en dashes.
+* Labels in the pixel font use plain letters (RESUME, not RÉSUMÉ), because the
+  font has no accented capitals.
