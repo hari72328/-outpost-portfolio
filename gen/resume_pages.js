@@ -1,20 +1,21 @@
-// Render each page of resume/resume.pdf to out/resume-page-N.png for
-// the Simple View, which shows the real CV as images (the artboard cannot embed a
-// PDF or use an iframe). macOS only, no dependencies: it drives the PDFKit that
-// ships with the OS through JavaScript for Automation.
+// Render each page of a resume PDF to out/resume-page-N.png for the resume
+// panel, which shows the CV as images (the page cannot embed a PDF or use an
+// iframe). macOS only, no dependencies: it drives the PDFKit that ships with
+// the OS through JavaScript for Automation. Run it from the project folder:
 //
-//     osascript -l JavaScript gen/resume_pages.js
+//     osascript -l JavaScript gen/resume_pages.js ~/Downloads/new-resume.pdf
 //
-// Pages are drawn at 3x their point size, sharp at the Simple View width on a
+// Pages are drawn at 3x their point size, sharp at the panel width on a
 // retina screen.
 ObjC.import('AppKit');
 ObjC.import('PDFKit');
 
-function run() {
+function run(argv) {
   const here = $.NSString.stringWithString($.NSProcessInfo.processInfo.environment.objectForKey('PWD')).js;
-  const pdf = here + '/resume/resume.pdf';
+  if (!argv.length) throw new Error('usage: osascript -l JavaScript gen/resume_pages.js <resume.pdf>');
+  const pdf = $.NSString.stringWithString(argv[0]).stringByExpandingTildeInPath.js;
   const doc = $.PDFDocument.alloc.initWithURL($.NSURL.fileURLWithPath(pdf));
-  if (doc.isNil()) throw new Error('cannot open ' + pdf + ' (run this from the project root)');
+  if (doc.isNil()) throw new Error('cannot open ' + pdf);
   const scale = 3, out = [];
   for (let i = 0; i < doc.pageCount; i++) {
     const page = doc.pageAtIndex(i);

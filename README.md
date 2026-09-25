@@ -12,8 +12,7 @@ python3 gen/build.py     # build the page
 python3 gen/serve.py     # preview it at http://localhost:8000
 ```
 
-Python 3 is the only requirement. In VS Code the same commands are under
-**Terminal > Run Task**, and **Cmd+Shift+B** builds.
+Python 3 is the only requirement.
 
 ## Layout
 
@@ -31,8 +30,6 @@ gen/                        everything you edit, plus the build
 static/
   dc-runtime.js             the small runtime that renders the page
   _blob/                    every image and the resume PDF, named <id>.<ext>
-resume/
-  resume.pdf                the CV: DOWNLOAD PDF serves it, the resume panel shows it
 .github/workflows/pages.yml build, export and deploy to GitHub Pages
 
 Generated, not committed: build/ (build.py), site/ (export.py), out/ (resume_pages.js)
@@ -71,14 +68,14 @@ lives in `gen/main_template.html`. Rebuild after editing.
 
 **A new resume.**
 
-1. Replace `resume/resume.pdf`.
-2. `osascript -l JavaScript gen/resume_pages.js` from the project folder, which
-   writes `out/resume-page-N.png`.
-3. Copy the PDF and each page image into `static/_blob/` as `<id>.<ext>`, and
+1. From the project folder, render its pages:
+   `osascript -l JavaScript gen/resume_pages.js path/to/new.pdf`, which writes
+   `out/resume-page-N.png`.
+2. Copy the PDF and each page image into `static/_blob/` as `<id>.<ext>`, and
    put those `/_blob/<id>` values in `RESUME_PDF_BLOB` and `RESUME_PAGES` in
    `content.py`. Any 32 hex characters make an id; `md5 -q <file>` gives one.
    Delete the old files from `static/_blob/`.
-4. Rebuild and check the preview.
+3. Rebuild and check the preview.
 
 **New artwork.** Copy the image into `static/_blob/` as `<id>.<ext>`, add
 `/_blob/<id>` and a line of alt text to `ARTWORKS` in `content.py`, and rebuild.

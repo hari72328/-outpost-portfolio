@@ -16,7 +16,7 @@ LINKEDIN_URL = "https://www.linkedin.com/in/haripriya-pb/"
 LINKEDIN_TEXT = "linkedin.com/in/haripriya-pb"
 
 # ---- the resume panel ----
-#: resume/resume.pdf, served by DOWNLOAD PDF
+#: the resume PDF, served by DOWNLOAD PDF
 RESUME_PDF_BLOB = "/_blob/0d752e1888e7dacdc88dd106a17362fb"
 #: out/resume-page-N.png, the same PDF's pages as images (gen/resume_pages.js)
 RESUME_PAGES = [
