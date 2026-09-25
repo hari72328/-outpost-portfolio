@@ -1,0 +1,1020 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hari Priya's Outpost</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;family=VT323&amp;display=swap" rel="stylesheet">
+<style>
+/* ---------- base ---------- */
+body{margin:0;background:#04070f;font-family:'VT323',monospace;color:#f2f8fc}
+a{color:#67e8f9}a:hover{color:#a5f3fc}
+button{font:inherit;color:inherit}
+.pf{font-family:'Press Start 2P',monospace}          /* pixel display face */
+svg.px{shape-rendering:crispEdges}                    /* keep pixel art crisp */
+img.px{image-rendering:pixelated;display:block}
+
+/* ---------- clickable objects in the scene ---------- */
+.obj{background:none;border:0;padding:0;margin:0;cursor:pointer}
+.lift{transition:transform .2s steps(2),filter .2s steps(2)}
+.obj:hover .lift{transform:translateY(-4px);filter:brightness(1.18)}
+.book{transition:transform .15s steps(2),filter .15s steps(2)}       /* skills archive: a book eases off the shelf */
+.book:hover{transform:translateY(-5px);filter:brightness(1.2)}
+.tag{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;text-align:center;font-family:'Press Start 2P',monospace;font-size:10px;line-height:1.7;padding:7px 10px;background:rgba(6,4,20,.92);color:#e6f6ff;border:2px solid #3e6f95;box-shadow:3px 3px 0 rgba(0,0,0,.5);transition:color .2s steps(2),border-color .2s steps(2),box-shadow .2s steps(2)}
+.obj:hover .tag,.obj:focus-visible .tag{color:#fde047;border-color:#fde047}
+.wood{background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.16) 0 2px,transparent 2px 14px)}
+.scan{background-image:repeating-linear-gradient(180deg,rgba(0,0,0,.22) 0 2px,transparent 2px 4px)}
+
+/* ---------- Ping ---------- */
+.peng{filter:drop-shadow(0 0 3px var(--glow,#22d3ee)) drop-shadow(0 0 12px var(--glow,#22d3ee)) brightness(1.06);animation:glow 2.6s ease-in-out infinite}
+.bob{animation:bob 1.8s ease-in-out infinite}
+.say{animation:pop .3s steps(3) both}
+
+/* ---------- sky, sea and sea life ---------- */
+.star{position:absolute;width:4px;height:4px;background:#fff7d6;animation:twinkle 2.8s steps(3) infinite}
+.orb{position:absolute;width:14px;height:14px;border-radius:50%;background:#fde68a;box-shadow:0 0 0 6px rgba(253,230,138,.32),0 0 0 13px rgba(190,205,150,.16),0 0 24px 10px rgba(253,230,138,.34);animation:twinkle 3.2s ease-in-out infinite}
+.aurora{animation:aurora 22s ease-in-out infinite alternate;pointer-events:none}
+.swirl{transform-box:fill-box;transform-origin:center;animation:spin 46s linear infinite}
+.swirl.rev{animation-direction:reverse}
+.waveband{animation-name:flowband;animation-timing-function:linear;animation-iteration-count:infinite}
+.mote{position:absolute;border-radius:50%;background:#bdf5ff;box-shadow:0 0 10px 3px var(--glow,#22d3ee);animation:drift linear infinite}
+.bubble{position:absolute;border:2px solid rgba(186,238,255,.7);border-radius:50%;animation:rise linear infinite}
+.reef{position:absolute}
+.glowreef{filter:drop-shadow(0 0 8px rgba(140,240,255,.75)) saturate(1.15)}
+.sway{transform-origin:bottom center;animation:sway 3.6s ease-in-out infinite alternate}
+.jelly{animation:jelly 4.4s ease-in-out infinite;filter:drop-shadow(0 0 8px #93c5fd)}
+.swim{animation:swim 26s linear infinite}
+.swim2{animation:swim 36s linear infinite;animation-delay:-16s}
+.swim3{animation:swim 44s linear infinite;animation-delay:-6s}
+
+/* ---------- sidebar ---------- */
+.place{display:flex;flex-direction:column;gap:5px;width:100%;min-height:56px;padding:10px 14px;box-sizing:border-box;text-align:left;background:#101a36;border:2px solid #26406e;border-left:6px solid var(--glow,#22d3ee);cursor:pointer;box-shadow:3px 3px 0 rgba(0,0,0,.5)}
+.place:hover{background:#16234a}
+.place .sub{color:#9fb5e8}
+.place.on{background:var(--glow,#22d3ee);color:#03171f;border-color:#04070f}
+.place.on .sub{color:#06242f;font-weight:700}
+.nav{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:8px 12px;box-sizing:border-box;background:transparent;border:2px solid transparent;cursor:pointer;text-align:left}
+.nav:hover{border-color:#26406e;background:#101a36}
+.nav .sub{color:#7f8db8}
+.nav.on{background:var(--glow,#22d3ee);border-color:#04070f;color:#04070f;box-shadow:4px 4px 0 #000}
+.nav.on .sub{color:#04141b;font-weight:700}
+.toggle{display:block;width:208px;margin:0 auto;padding:0;background:none;border:0;cursor:pointer}
+.track{position:relative;display:block;width:208px;height:52px;box-sizing:border-box;border-radius:26px;border:3px solid #0b0f24;background:linear-gradient(100deg,#f3a712,#fde047);box-shadow:4px 4px 0 rgba(0,0,0,.5);transition:background .25s ease}
+.track.night{background:linear-gradient(100deg,#0a1440,#22408a)}
+.tlabel{position:absolute;top:0;left:10px;right:52px;height:46px;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:9px;line-height:1;letter-spacing:.02em;color:#0b0f24;text-shadow:1px 1px 0 rgba(255,255,255,.4);white-space:nowrap;transition:left .28s ease,right .28s ease,color .25s ease}
+.tlabel.night{left:52px;right:10px;color:#eaf6ff;text-shadow:1px 1px 0 rgba(0,0,0,.5)}
+.knob{position:absolute;top:0;left:156px;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fffbea;box-shadow:inset 0 0 0 3px #0b0f24;transition:left .28s ease,background .25s ease,box-shadow .25s ease}
+.knob.night{left:0;background:#0b1224;box-shadow:inset 0 0 0 3px #22d3ee}
+.toggle:hover .track{filter:brightness(1.06)}
+.toggle:focus-visible .track{outline:3px solid #fde047;outline-offset:3px}
+
+/* ---------- buttons, panels, forms ---------- */
+.pxbtn{font-family:'Press Start 2P',monospace;font-size:11px;line-height:1.5;padding:14px 16px;min-height:44px;background:#fde047;color:#0b0f24;border:3px solid #0b0f24;box-shadow:4px 4px 0 #0b0f24;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:10px;box-sizing:border-box;text-align:center}
+.pxbtn:hover{background:#fef08a;color:#0b0f24}
+.pxbtn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #0b0f24}
+.pxbtn.cyan{background:#22d3ee}.pxbtn.cyan:hover{background:#67e8f9}
+.pxbtn.ghost{background:transparent;color:#fde047;border-color:#fde047;box-shadow:4px 4px 0 #000}.pxbtn.ghost:hover{background:rgba(253,224,71,.14);color:#fef08a}
+.pop{animation:pop .4s steps(4) both}
+.phead{position:sticky;top:-26px;z-index:4;padding:12px 0;margin-top:-12px}   /* keeps BACK in view */
+.termrow{display:flex;align-items:center;gap:16px;width:100%;box-sizing:border-box;padding:14px 16px;background:#10233f;border:3px solid #23558c;cursor:pointer;text-align:left}
+.termrow:hover{border-color:#67e8f9;background:#16345c}
+.termrow:focus-visible{outline:3px solid #fde047;outline-offset:2px}
+.blink{animation:blink 1s steps(1) infinite}
+.beam{animation:beam 4.5s ease-in-out infinite alternate;pointer-events:none}
+.field{display:flex;flex-direction:column;gap:6px;font-size:22px}
+.field input,.field textarea{font-family:'VT323',monospace;font-size:22px;padding:8px 10px;background:#f3ece0;color:#1b1f3b;border:3px solid #0b0f24;box-shadow:inset 3px 3px 0 #d3c8b4;outline:none}
+.field input:focus,.field textarea:focus{border-color:#0e7490}
+
+/* ---------- keyboard focus ---------- */
+.obj:focus-visible,.nav:focus-visible,.pxbtn:focus-visible{outline:3px solid #fde047;outline-offset:3px}
+
+/* ---------- animations ---------- */
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 3px var(--glow,#22d3ee)) drop-shadow(0 0 9px var(--glow,#22d3ee)) brightness(1.06)}50%{filter:drop-shadow(0 0 4px var(--glow,#22d3ee)) drop-shadow(0 0 18px var(--glow,#22d3ee)) brightness(1.12)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes drift{0%{transform:translate(0,0);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translate(60px,-260px);opacity:0}}
+@keyframes flowband{from{transform:translateX(0)}to{transform:translateX(240px)}}
+@keyframes aurora{from{transform:translateX(-30px) scaleY(.92);opacity:.55}to{transform:translateX(30px) scaleY(1.08);opacity:1}}
+@keyframes rise{from{transform:translateY(0);opacity:0}10%{opacity:1}to{transform:translateY(-560px);opacity:0}}
+@keyframes swim{from{transform:translateX(1280px)}to{transform:translateX(-220px)}}
+@keyframes jelly{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(-22px) scaleY(.88)}}
+@keyframes sway{from{transform:skewX(-5deg)}to{transform:skewX(5deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{50%{opacity:0}}
+@keyframes beam{0%{opacity:.45}100%{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+/* typewriter: VT323 is monospace, so a width of N ch shows exactly N characters.
+   --n is the line's length; the caret blinks a few times after typing, then goes. */
+.typed{width:calc(var(--n) * 1ch);white-space:nowrap;overflow:hidden;border-right:3px solid transparent;padding-right:2px;animation:type 2.2s steps(var(--n)) .6s both,caret .75s step-end 7}
+@keyframes type{from{width:0}}
+@keyframes caret{0%{border-right-color:#8fa6cf}50%{border-right-color:transparent}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition-duration:.01s !important}}
+</style>
+</helmet>
+<div style="--glow: {{glow}}; width: 1440px; height: 900px; position: relative; overflow: hidden; background: #04070f; display: flex;">
+
+<!-- ========== SIDEBAR: who, where to, sky switch, résumé ========== -->
+<nav aria-label="Sections of Hari Priya's outpost" style="width: 260px; height: 900px; flex-shrink: 0; box-sizing: border-box; padding: 22px 18px; background: #070d1c; border-right: 4px solid #000; display: flex; flex-direction: column; gap: 18px; position: relative; z-index: 5;">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;">
+<div class="pf" style="font-size: 12px; line-height: 1.2; color: #f2f8fc; white-space: nowrap;">%%NAME%%</div>
+<div style="font-size: 21px; line-height: 1.1; color: #9fb5e8; white-space: nowrap;">%%ROLE%%</div>
+</div>
+<div style="height: 3px; background: #1d2b4a;"></div>
+
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div class="pf" style="font-size: 8px; color: #7f8db8; padding: 0 4px 2px;">WHERE TO</div>
+<sc-for list="{{navPlaces}}" as="item" hint-placeholder-count="2">
+<button class="place {{item.cls}}" onClick="{{item.go}}" aria-current="{{item.current}}">
+<span class="pf" style="font-size: 11px; line-height: 1.3;">{{item.label}}</span>
+<span class="sub" style="font-size: 19px; line-height: 1;">{{item.sub}}</span>
+</button>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<div class="pf" style="font-size: 8px; color: #7f8db8; padding: 0 4px 6px;">INSIDE THE CAVERN</div>
+<sc-for list="{{navObjects}}" as="item" hint-placeholder-count="5">
+<button class="nav {{item.cls}}" onClick="{{item.go}}" aria-current="{{item.current}}" style="width: 221px; height: 63px">
+<span style="width: 10px; height: 10px; flex-shrink: 0; background: {{item.color}}; box-shadow: 2px 2px 0 #000;"></span>
+<span style="display: flex; flex-direction: column; gap: 3px;">
+<span class="pf" style="font-size: 9px; line-height: 1.2;">{{item.label}}</span>
+<span class="sub" style="font-size: 18px; line-height: 1;">{{item.sub}}</span>
+</span>
+</button>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
+<div class="pf" style="font-size: 8px; color: #7f8db8; padding: 0 4px;">SKY</div>
+<button class="toggle" onClick="{{toggleSky}}" role="switch" aria-checked="{{isNight}}" aria-label="Sky: day or night">
+<span class="track {{knobCls}}">
+<span class="tlabel {{knobCls}}">{{skyWord}}</span>
+<span class="knob {{knobCls}}">
+<sc-if value="{{isDay}}" hint-placeholder-val="{{true}}"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5.4" fill="#f5b52a"/><rect x="11" y="0.6" width="2" height="3.4" rx="1" fill="#f5b52a" transform="rotate(0 12 12)"/><rect x="11" y="0.6" width="2" height="3.4" rx="1" fill="#f5b52a" transform="rotate(45 12 12)"/><rect x="11" y="0.6" width="2" height="3.4" rx="1" fill="#f5b52a" transform="rotate(90 12 12)"/><rect x="11" y="0.6" width="2" height="3.4" rx="1" fill="#f5b52a" transform="rotate(135 12 12)"/><rect x="11" y="0.6" width="2" height="3.4" rx="1" fill="#f5b52a" transform="rotate(180 12 12)"/><rect x="11" y="0.6" width="2" height="3.4" rx="1" fill="#f5b52a" transform="rotate(225 12 12)"/><rect x="11" y="0.6" width="2" height="3.4" rx="1" fill="#f5b52a" transform="rotate(270 12 12)"/><rect x="11" y="0.6" width="2" height="3.4" rx="1" fill="#f5b52a" transform="rotate(315 12 12)"/></svg></sc-if>
+<sc-if value="{{isNight}}" hint-placeholder-val="{{false}}"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.6 15.8A7.2 7.2 0 0 1 9.4 5.2a7.6 7.6 0 1 0 9.8 9.8 7.3 7.3 0 0 1-2.6.8z" fill="#a5f3fc"/><path d="M17.4 4.2l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" fill="#22d3ee"/><path d="M20.4 9.2l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5z" fill="#22d3ee"/></svg></sc-if>
+</span>
+</span>
+</button>
+<div style="font-size: 18px; line-height: 1.15; min-height: 42px; color: #9fb5e8; padding: 0 2px;">{{skyNote}}</div>
+</div>
+<button class="pxbtn" onClick="{{openResume}}">VIEW RESUME</button>
+<div style="font-size: 19px; line-height: 1.1; color: #7f8db8; text-align: center;">My CV, ready to read or download.</div>
+</nav>
+
+<!-- ========== VIEWPORT: the scrolling world + overlays ========== -->
+<div onMouseMove="{{onMove}}" style="width: 1180px; height: 900px; position: relative; overflow: hidden; background: {{deepBg}};">
+
+<div style="position: absolute; left: 0; top: 0; width: 1180px; height: 1800px; transform-origin: 0 0; transform: translate({{tx}}px, {{ty}}px) scale({{s}}); transition: transform 1.5s cubic-bezier(.65,0,.35,1);">
+
+<!-- ----- sky: ukiyo-e sunrise by day, starry night after dark ----- -->
+<div style="position: absolute; left: 0; top: 0; width: 1180px; height: 680px; background: {{skyBg}};"></div>
+
+<sc-if value="{{isDay}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; left: 480px; top: 452px; width: 220px; display: flex; flex-direction: column; align-items: center;">
+<sc-for list="{{sunRows}}" as="row" hint-placeholder-count="22">
+<div style="width: {{row.w}}px; height: 10px; background: #e2553a;"></div>
+</sc-for>
+</div>
+<div style="position: absolute; left: 300px; top: 86px;">
+<div style="width: 150px; height: 12px; margin-left: 50px; background: #fbeee0;"></div>
+<div style="width: 300px; height: 14px; background: #fbeee0; border-bottom: 4px solid #e8b69a;"></div>
+</div>
+<div style="position: absolute; left: 770px; top: 146px;">
+<div style="width: 140px; height: 12px; margin-left: 70px; background: #fbeee0;"></div>
+<div style="width: 280px; height: 14px; background: #fbeee0; border-bottom: 4px solid #e8b69a;"></div>
+</div>
+<div style="position: absolute; left: 420px; top: 546px; width: 340px; height: 10px; background: #f7d2b0; border-bottom: 4px solid #e89a78;"></div>
+<div style="position: absolute; left: 620px; top: 372px; width: 560px; display: flex; flex-direction: column; align-items: center;">
+<sc-for list="{{fuji}}" as="row" hint-placeholder-count="30">
+<div style="width: {{row.w}}px; height: 10px; background: {{row.c}};"></div>
+</sc-for>
+</div>
+<div style="position: absolute; left: 1060px; top: 524px; width: 120px; height: 156px; background: #5a5046; clip-path: polygon(20% 30%, 45% 10%, 70% 0, 100% 5%, 100% 100%, 0 100%, 5% 55%);"></div>
+</sc-if>
+
+<sc-if value="{{isNight}}" hint-placeholder-val="{{false}}">
+<svg style="position: absolute; left: 0; top: 0; opacity: .85;" width="1180" height="666" viewBox="0 0 1180 666" aria-hidden="true">
+<g class="swirl"><circle cx="540" cy="206" r="122" style="fill:none;stroke:#3f63c9;stroke-width:15;stroke-dasharray:42 18;"></circle><circle cx="540" cy="206" r="86" style="fill:none;stroke:#7fa0f0;stroke-width:11;stroke-dasharray:28 14;"></circle><circle cx="540" cy="206" r="50" style="fill:none;stroke:#c7d7ff;stroke-width:8;stroke-dasharray:18 10;"></circle><circle cx="540" cy="206" r="18" style="fill:none;stroke:#fde68a;stroke-width:7;"></circle></g>
+<g class="swirl rev"><circle cx="830" cy="300" r="92" style="fill:none;stroke:#3f63c9;stroke-width:12;stroke-dasharray:34 16;"></circle><circle cx="830" cy="300" r="58" style="fill:none;stroke:#8ea9ff;stroke-width:9;stroke-dasharray:22 12;"></circle><circle cx="830" cy="300" r="26" style="fill:none;stroke:#c7d7ff;stroke-width:6;stroke-dasharray:12 8;"></circle></g>
+<g class="swirl"><circle cx="300" cy="118" r="72" style="fill:none;stroke:#3553b0;stroke-width:11;stroke-dasharray:26 14;"></circle><circle cx="300" cy="118" r="40" style="fill:none;stroke:#7fa0f0;stroke-width:7;stroke-dasharray:16 10;"></circle></g>
+<path d="M0 452 C 200 392, 380 512, 600 442 S 1000 382, 1180 462" style="fill:none;stroke:#5577d9;stroke-width:13;stroke-dasharray:30 14;"></path>
+<path d="M0 520 C 240 470, 420 560, 640 500 S 980 450, 1180 520" style="fill:none;stroke:#4262c0;stroke-width:9;stroke-dasharray:22 12;"></path>
+</svg>
+<div class="aurora" style="position: absolute; left: -80px; top: 150px; width: 1340px; height: 90px; background: linear-gradient(180deg, rgba(110,231,183,0), rgba(110,231,183,.30), rgba(59,130,246,0)); clip-path: polygon(0 40%, 12% 10%, 26% 46%, 40% 14%, 56% 50%, 70% 18%, 84% 48%, 100% 22%, 100% 74%, 84% 96%, 70% 62%, 56% 92%, 40% 58%, 26% 92%, 12% 58%, 0 86%);"></div>
+<div class="aurora" style="position: absolute; left: -60px; top: 226px; width: 1300px; height: 64px; animation-delay: -9s; background: linear-gradient(180deg, rgba(167,139,250,0), rgba(167,139,250,.24), rgba(0,0,0,0)); clip-path: polygon(0 50%, 14% 16%, 30% 54%, 46% 20%, 62% 56%, 78% 22%, 92% 52%, 100% 30%, 100% 78%, 78% 96%, 62% 66%, 46% 94%, 30% 64%, 14% 92%, 0 88%);"></div>
+<sc-for list="{{stars}}" as="star" hint-placeholder-count="30">
+<div class="star" style="left: {{star.x}}px; top: {{star.y}}px; animation-delay: {{star.d}}s;"></div>
+</sc-for>
+<sc-for list="{{orbs}}" as="o" hint-placeholder-count="9">
+<div class="orb" style="left: {{o.x}}px; top: {{o.y}}px; animation-delay: {{o.d}}s;"></div>
+</sc-for>
+<div style="position: absolute; left: 1000px; top: 38px; width: 112px; filter: drop-shadow(0 0 26px rgba(253,230,138,.7));">
+<sc-for list="{{moonRows}}" as="row" hint-placeholder-count="14">
+<div style="width: {{row.w}}px; margin-left: {{row.l}}px; height: 8px; background: #fde68a;"></div>
+</sc-for>
+</div>
+<div style="position: absolute; left: 820px; top: 616px; width: 360px; height: 64px; background: #0a1330; clip-path: polygon(0 100%, 20% 50%, 45% 60%, 70% 10%, 100% 30%, 100% 100%);"></div>
+<div style="position: absolute; left: 330px; top: 664px; width: 120px; height: 16px; background: #091a24;"></div>
+<div style="position: absolute; left: 356px; top: 324px; width: 64px; height: 346px; background: #0c2a20; clip-path: polygon(50% 0, 62% 14%, 58% 24%, 74% 40%, 68% 52%, 86% 70%, 80% 82%, 100% 100%, 0 100%, 18% 84%, 12% 70%, 30% 54%, 24% 40%, 40% 24%, 36% 12%);"></div>
+</sc-if>
+
+<!-- ----- sea: wave bands, light shafts, motes, bubbles, sea life ----- -->
+<div style="position: absolute; left: 0; top: 680px; width: 1180px; height: 1120px; background: {{seaBg}};"></div>
+<div style="position: absolute; left: 0; top: 670px; width: 1180px; height: 20px; display: flex; overflow: hidden;">
+<sc-for list="{{waves}}" as="wv" hint-placeholder-count="25">
+<svg class="px" width="48" height="20" viewBox="0 0 12 5" style="flex-shrink: 0;" aria-hidden="true">
+<rect x="0" y="3" width="12" height="2" fill="{{waveTop}}"></rect><rect x="2" y="2" width="7" height="1" fill="{{waveTop}}"></rect><rect x="3" y="1" width="4" height="1" fill="{{waveTop}}"></rect>
+<rect x="4" y="0" width="3" height="1" fill="{{foam}}"></rect><rect x="3" y="1" width="1" height="1" fill="{{foam}}"></rect><rect x="2" y="2" width="1" height="1" fill="{{foam}}"></rect><rect x="7" y="1" width="1" height="1" fill="{{foam}}"></rect>
+</svg>
+</sc-for>
+</div>
+<!-- moving water: sun shafts and ukiyo-e wave bands -->
+<div style="position: absolute; left: 170px; top: 690px; width: 120px; height: 900px; background: rgba(200,240,255,{{rayA}}); transform: skewX(-13deg);"></div>
+<div style="position: absolute; left: 540px; top: 690px; width: 80px; height: 820px; background: rgba(200,240,255,{{rayA}}); transform: skewX(-13deg);"></div>
+<div style="position: absolute; left: 930px; top: 690px; width: 140px; height: 940px; background: rgba(200,240,255,{{rayA}}); transform: skewX(-13deg);"></div>
+<div class="waveband" style="position: absolute; left: -240px; top: 720px; width: 1660px; height: 48px; animation-duration: 46s; animation-delay: -0s; opacity: {{waveA}};"><svg width="1660" height="48" viewBox="0 0 1660 48" aria-hidden="true"><path d="M0,22 q 120,-14 240,0 q 120,14 240,0 q 120,-14 240,0 q 120,14 240,0 q 120,-14 240,0 q 120,14 240,0 q 120,-14 240,0" style="fill:none;stroke:{{waveLine}};stroke-width:4;stroke-linecap:round;"></path><path d="M0,31 q 96,-11 192,0 q 96,11 192,0 q 96,-11 192,0 q 96,11 192,0 q 96,-11 192,0 q 96,11 192,0 q 96,-11 192,0 q 96,11 192,0 q 96,-11 192,0" style="fill:none;stroke:{{waveLineSoft}};stroke-width:2.5;stroke-linecap:round;"></path><path d="M69,22 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M492,25 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M910,30 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M1276,28 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path></svg></div>
+<div class="waveband" style="position: absolute; left: -240px; top: 792px; width: 1660px; height: 48px; animation-duration: 58s; animation-delay: -12s; opacity: {{waveA}};"><svg width="1660" height="48" viewBox="0 0 1660 48" aria-hidden="true"><path d="M0,22 q 100,-11 200,0 q 100,11 200,0 q 100,-11 200,0 q 100,11 200,0 q 100,-11 200,0 q 100,11 200,0 q 100,-11 200,0 q 100,11 200,0 q 100,-11 200,0" style="fill:none;stroke:{{waveLine}};stroke-width:4;stroke-linecap:round;"></path><path d="M0,31 q 80,-8 160,0 q 80,8 160,0 q 80,-8 160,0 q 80,8 160,0 q 80,-8 160,0 q 80,8 160,0 q 80,-8 160,0 q 80,8 160,0 q 80,-8 160,0 q 80,8 160,0 q 80,-8 160,0" style="fill:none;stroke:{{waveLineSoft}};stroke-width:2.5;stroke-linecap:round;"></path><path d="M79,21 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M624,15 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M1193,19 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path></svg></div>
+<div class="waveband" style="position: absolute; left: -240px; top: 870px; width: 1660px; height: 48px; animation-duration: 40s; animation-delay: -5s; opacity: {{waveA}};"><svg width="1660" height="48" viewBox="0 0 1660 48" aria-hidden="true"><path d="M0,22 q 130,-15 260,0 q 130,15 260,0 q 130,-15 260,0 q 130,15 260,0 q 130,-15 260,0 q 130,15 260,0 q 130,-15 260,0" style="fill:none;stroke:{{waveLine}};stroke-width:4;stroke-linecap:round;"></path><path d="M0,31 q 104,-12 208,0 q 104,12 208,0 q 104,-12 208,0 q 104,12 208,0 q 104,-12 208,0 q 104,12 208,0 q 104,-12 208,0 q 104,12 208,0" style="fill:none;stroke:{{waveLineSoft}};stroke-width:2.5;stroke-linecap:round;"></path><path d="M37,25 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M475,21 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M884,17 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M1311,21 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path></svg></div>
+<div class="waveband" style="position: absolute; left: -240px; top: 952px; width: 1660px; height: 48px; animation-duration: 66s; animation-delay: -22s; opacity: {{waveA}};"><svg width="1660" height="48" viewBox="0 0 1660 48" aria-hidden="true"><path d="M0,22 q 110,-12 220,0 q 110,12 220,0 q 110,-12 220,0 q 110,12 220,0 q 110,-12 220,0 q 110,12 220,0 q 110,-12 220,0 q 110,12 220,0" style="fill:none;stroke:{{waveLine}};stroke-width:4;stroke-linecap:round;"></path><path d="M0,31 q 88,-9 176,0 q 88,9 176,0 q 88,-9 176,0 q 88,9 176,0 q 88,-9 176,0 q 88,9 176,0 q 88,-9 176,0 q 88,9 176,0 q 88,-9 176,0 q 88,9 176,0" style="fill:none;stroke:{{waveLineSoft}};stroke-width:2.5;stroke-linecap:round;"></path><path d="M30,20 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M609,22 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M1147,26 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path></svg></div>
+<div class="waveband" style="position: absolute; left: -240px; top: 1030px; width: 1660px; height: 48px; animation-duration: 52s; animation-delay: -9s; opacity: {{waveA}};"><svg width="1660" height="48" viewBox="0 0 1660 48" aria-hidden="true"><path d="M0,22 q 120,-13 240,0 q 120,13 240,0 q 120,-13 240,0 q 120,13 240,0 q 120,-13 240,0 q 120,13 240,0 q 120,-13 240,0" style="fill:none;stroke:{{waveLine}};stroke-width:4;stroke-linecap:round;"></path><path d="M0,31 q 96,-10 192,0 q 96,10 192,0 q 96,-10 192,0 q 96,10 192,0 q 96,-10 192,0 q 96,10 192,0 q 96,-10 192,0 q 96,10 192,0 q 96,-10 192,0" style="fill:none;stroke:{{waveLineSoft}};stroke-width:2.5;stroke-linecap:round;"></path><path d="M40,16 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M453,28 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M868,18 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M1275,14 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path></svg></div>
+<div class="waveband" style="position: absolute; left: -240px; top: 1100px; width: 1660px; height: 48px; animation-duration: 74s; animation-delay: -30s; opacity: {{waveA}};"><svg width="1660" height="48" viewBox="0 0 1660 48" aria-hidden="true"><path d="M0,22 q 100,-10 200,0 q 100,10 200,0 q 100,-10 200,0 q 100,10 200,0 q 100,-10 200,0 q 100,10 200,0 q 100,-10 200,0 q 100,10 200,0 q 100,-10 200,0" style="fill:none;stroke:{{waveLine}};stroke-width:4;stroke-linecap:round;"></path><path d="M0,31 q 80,-7 160,0 q 80,7 160,0 q 80,-7 160,0 q 80,7 160,0 q 80,-7 160,0 q 80,7 160,0 q 80,-7 160,0 q 80,7 160,0 q 80,-7 160,0 q 80,7 160,0 q 80,-7 160,0" style="fill:none;stroke:{{waveLineSoft}};stroke-width:2.5;stroke-linecap:round;"></path><path d="M43,20 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M593,19 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path><path d="M1154,24 c 11,-9 26,-3 26,9 c 0,9 -12,13 -17,6 c -4,-6 -1,-12 6,-12" style="fill:none;stroke:{{waveLine}};stroke-width:3;stroke-linecap:round;"></path></svg></div>
+<sc-for list="{{motes}}" as="m" hint-placeholder-count="18">
+<div class="mote" style="left: {{m.x}}px; top: {{m.y}}px; width: {{m.sz}}px; height: {{m.sz}}px; animation-duration: {{m.dur}}s; animation-delay: {{m.d}}s;"></div>
+</sc-for>
+<div style="position: absolute; left: 356px; top: 660px; width: 26px; height: 420px; opacity: .5;">
+<sc-for list="{{trail}}" as="t" hint-placeholder-count="8">
+<div class="bubble" style="left: {{t.x}}px; top: {{t.y}}px; width: {{t.sz}}px; height: {{t.sz}}px; animation-duration: {{t.dur}}s; animation-delay: {{t.d}}s;"></div>
+</sc-for>
+</div>
+%%FISH_WATER%%
+<sc-for list="{{bubbles}}" as="b" hint-placeholder-count="10">
+<div class="bubble" style="left: {{b.x}}px; top: 1180px; width: {{b.sz}}px; height: {{b.sz}}px; animation-duration: {{b.dur}}s; animation-delay: {{b.d}}s;"></div>
+</sc-for>
+
+<!-- creatures -->
+<div class="swim" style="position: absolute; left: 0; top: 720px; display: flex; gap: 16px;">
+<svg class="px" width="42" height="21" viewBox="0 0 14 7" aria-hidden="true"><rect x="2" y="2" width="8" height="3" fill="#7fd4e8"></rect><rect x="3" y="1" width="6" height="5" fill="#7fd4e8"></rect><rect x="1" y="3" width="1" height="1" fill="#bdf0fa"></rect><rect x="10" y="1" width="2" height="5" fill="#4aa7c4"></rect><rect x="12" y="2" width="1" height="3" fill="#4aa7c4"></rect><rect x="3" y="2" width="1" height="1" fill="#0a1020"></rect><rect x="5" y="1" width="1" height="5" fill="#e6fbff"></rect></svg>
+<svg class="px" width="42" height="21" viewBox="0 0 14 7" style="margin-top: 16px;" aria-hidden="true"><rect x="2" y="2" width="8" height="3" fill="#7fd4e8"></rect><rect x="3" y="1" width="6" height="5" fill="#7fd4e8"></rect><rect x="1" y="3" width="1" height="1" fill="#bdf0fa"></rect><rect x="10" y="1" width="2" height="5" fill="#4aa7c4"></rect><rect x="12" y="2" width="1" height="3" fill="#4aa7c4"></rect><rect x="3" y="2" width="1" height="1" fill="#0a1020"></rect><rect x="5" y="1" width="1" height="5" fill="#e6fbff"></rect></svg>
+<svg class="px" width="42" height="21" viewBox="0 0 14 7" aria-hidden="true"><rect x="2" y="2" width="8" height="3" fill="#7fd4e8"></rect><rect x="3" y="1" width="6" height="5" fill="#7fd4e8"></rect><rect x="1" y="3" width="1" height="1" fill="#bdf0fa"></rect><rect x="10" y="1" width="2" height="5" fill="#4aa7c4"></rect><rect x="12" y="2" width="1" height="3" fill="#4aa7c4"></rect><rect x="3" y="2" width="1" height="1" fill="#0a1020"></rect><rect x="5" y="1" width="1" height="5" fill="#e6fbff"></rect></svg>
+</div>
+<div class="swim3" style="position: absolute; left: 0; top: 846px; display: flex; gap: 12px;">
+<svg class="px" width="34" height="17" viewBox="0 0 14 7" aria-hidden="true"><rect x="2" y="2" width="8" height="3" fill="#fbbf24"></rect><rect x="3" y="1" width="6" height="5" fill="#fbbf24"></rect><rect x="10" y="1" width="3" height="5" fill="#f59e0b"></rect><rect x="6" y="1" width="1" height="5" fill="#0a1020"></rect><rect x="3" y="2" width="1" height="1" fill="#0a1020"></rect></svg>
+<svg class="px" width="34" height="17" viewBox="0 0 14 7" style="margin-top: 12px;" aria-hidden="true"><rect x="2" y="2" width="8" height="3" fill="#fbbf24"></rect><rect x="3" y="1" width="6" height="5" fill="#fbbf24"></rect><rect x="10" y="1" width="3" height="5" fill="#f59e0b"></rect><rect x="6" y="1" width="1" height="5" fill="#0a1020"></rect><rect x="3" y="2" width="1" height="1" fill="#0a1020"></rect></svg>
+<svg class="px" width="34" height="17" viewBox="0 0 14 7" aria-hidden="true"><rect x="2" y="2" width="8" height="3" fill="#fbbf24"></rect><rect x="3" y="1" width="6" height="5" fill="#fbbf24"></rect><rect x="10" y="1" width="3" height="5" fill="#f59e0b"></rect><rect x="6" y="1" width="1" height="5" fill="#0a1020"></rect><rect x="3" y="2" width="1" height="1" fill="#0a1020"></rect></svg>
+<svg class="px" width="34" height="17" viewBox="0 0 14 7" style="margin-top: 22px;" aria-hidden="true"><rect x="2" y="2" width="8" height="3" fill="#fbbf24"></rect><rect x="3" y="1" width="6" height="5" fill="#fbbf24"></rect><rect x="10" y="1" width="3" height="5" fill="#f59e0b"></rect><rect x="6" y="1" width="1" height="5" fill="#0a1020"></rect><rect x="3" y="2" width="1" height="1" fill="#0a1020"></rect></svg>
+</div>
+<div class="swim2" style="position: absolute; left: 0; top: 880px;">
+<svg class="px" width="96" height="55" viewBox="0 0 14 8" aria-hidden="true"><rect x="4" y="1" width="6" height="1" fill="#4d7a3a"></rect><rect x="3" y="2" width="8" height="3" fill="#6b9a4a"></rect><rect x="4" y="2" width="2" height="1" fill="#8fc26a"></rect><rect x="7" y="3" width="2" height="1" fill="#8fc26a"></rect><rect x="0" y="2" width="3" height="2" fill="#4d8a57"></rect><rect x="0" y="2" width="1" height="1" fill="#0a1020"></rect><rect x="3" y="5" width="2" height="2" fill="#4d8a57"></rect><rect x="9" y="5" width="2" height="2" fill="#4d8a57"></rect><rect x="11" y="3" width="2" height="1" fill="#4d8a57"></rect></svg>
+</div>
+<sc-for list="{{jellies}}" as="j" hint-placeholder-count="5">
+<div class="jelly" style="position: absolute; left: {{j.x}}px; top: {{j.y}}px; animation-delay: {{j.d}}s; opacity: .9;">
+<svg class="px" width="{{j.w}}" height="{{j.h}}" viewBox="0 0 11 16" aria-hidden="true">
+<rect x="3" y="0" width="5" height="1" fill="#e0e7ff"></rect><rect x="2" y="1" width="7" height="1" fill="#c4b5fd"></rect><rect x="1" y="2" width="9" height="3" fill="#a5b4fc"></rect><rect x="2" y="2" width="2" height="1" fill="#f5f3ff"></rect><rect x="1" y="5" width="9" height="1" fill="#8b9cf7"></rect>
+<rect x="2" y="6" width="1" height="7" fill="#c4b5fd"></rect><rect x="4" y="6" width="1" height="10" fill="#a5b4fc"></rect><rect x="6" y="6" width="1" height="8" fill="#c4b5fd"></rect><rect x="8" y="6" width="1" height="6" fill="#a5b4fc"></rect>
+</svg>
+</div>
+</sc-for>
+
+<!-- ----- the shore: rock, tide pools, where Ping stands ----- -->
+<div style="position: absolute; left: 0; top: 388px; width: 252px; height: 720px; background: {{rock}}; clip-path: polygon(0 0, 94% 0, 100% 6%, 96% 26%, 88% 44%, 92% 62%, 80% 80%, 70% 100%, 0 100%);"></div>
+<div style="position: absolute; left: 0; top: 372px; width: 240px; height: 18px; background: {{moss}};"></div>
+<div style="position: absolute; left: 0; top: 366px; width: 26px; height: 8px; background: {{moss}};"></div>
+<div style="position: absolute; left: 42px; top: 366px; width: 34px; height: 8px; background: {{moss}};"></div>
+<div style="position: absolute; left: 96px; top: 366px; width: 28px; height: 8px; background: {{moss}};"></div>
+<div style="position: absolute; left: 146px; top: 366px; width: 38px; height: 8px; background: {{moss}};"></div>
+<div style="position: absolute; left: 200px; top: 366px; width: 24px; height: 8px; background: {{moss}};"></div>
+<div style="position: absolute; left: 0; top: 366px; width: 248px; height: 18px; background: {{rockHi}};"></div>
+<div style="position: absolute; left: 0; top: 384px; width: 244px; height: 10px; background: {{rockTop}};"></div>
+<div style="position: absolute; left: 0; top: 404px; width: 210px; height: 6px; background: {{rockStrata}};"></div>
+<div style="position: absolute; left: 0; top: 452px; width: 176px; height: 6px; background: {{rockStrata}};"></div>
+<div style="position: absolute; left: 0; top: 512px; width: 196px; height: 6px; background: {{rockStrata}};"></div>
+<div style="position: absolute; left: 118px; top: 386px; width: 44px; height: 8px; background: {{tidepool}}; box-shadow: 0 0 10px rgba(120,220,255,.35);"></div>
+<div style="position: absolute; left: 44px; top: 392px; width: 26px; height: 6px; background: {{tidepool}};"></div>
+<div style="position: absolute; left: 30px; top: 470px; width: 60px; height: 6px; background: {{rockHi}};"></div>
+<div style="position: absolute; left: 110px; top: 560px; width: 80px; height: 6px; background: {{rockHi}};"></div>
+<div style="position: absolute; left: 20px; top: 700px; width: 70px; height: 6px; background: {{rockHi}};"></div>
+<div style="position: absolute; left: 150px; top: 830px; width: 50px; height: 6px; background: {{rockHi}};"></div>
+
+<!-- ----- the lighthouse on the left lip of the headland ----- -->
+<div style="position: absolute; left: 0; top: 356px; width: 74px; height: 24px; background: {{rockHi}}; clip-path: polygon(6% 100%, 0 46%, 18% 10%, 50% 0, 82% 12%, 100% 48%, 94% 100%);"></div>
+<div style="position: absolute; left: 6px; top: 306px; width: 62px; height: 54px; background: #f2ece0; box-shadow: inset -10px 0 0 rgba(0,0,0,.16), inset 8px 0 0 rgba(255,255,255,.5);"></div>
+<div style="position: absolute; left: 10px; top: 272px; width: 54px; height: 36px; background: #f2ece0; box-shadow: inset -9px 0 0 rgba(0,0,0,.16), inset 7px 0 0 rgba(255,255,255,.5);"></div>
+<div style="position: absolute; left: 10px; top: 262px; width: 54px; height: 12px; background: #b5433a;"></div>
+<div style="position: absolute; left: 14px; top: 228px; width: 46px; height: 36px; background: #f2ece0; box-shadow: inset -7px 0 0 rgba(0,0,0,.16), inset 6px 0 0 rgba(255,255,255,.5);"></div>
+<div style="position: absolute; left: 14px; top: 218px; width: 46px; height: 12px; background: #b5433a;"></div>
+<div style="position: absolute; left: 32px; top: 290px; width: 10px; height: 16px; background: #2b3a4a;"></div>
+<div style="position: absolute; left: 32px; top: 242px; width: 10px; height: 14px; background: #2b3a4a;"></div>
+<div style="position: absolute; left: 4px; top: 206px; width: 66px; height: 14px; background: #b5433a; box-shadow: inset 0 -5px 0 rgba(0,0,0,.28);"></div>
+<div style="position: absolute; left: 8px; top: 196px; width: 6px; height: 12px; background: #b5433a;"></div>
+<div style="position: absolute; left: 22px; top: 196px; width: 6px; height: 12px; background: #b5433a;"></div>
+<div style="position: absolute; left: 46px; top: 196px; width: 6px; height: 12px; background: #b5433a;"></div>
+<div style="position: absolute; left: 60px; top: 196px; width: 6px; height: 12px; background: #b5433a;"></div>
+<div style="position: absolute; left: 18px; top: 162px; width: 38px; height: 36px; box-sizing: border-box; border: 4px solid #8a3730; background: {{lampGlass}}; box-shadow: {{lampBeamGlow}};"></div>
+<div style="position: absolute; left: 12px; top: 150px; width: 50px; height: 14px; background: #b5433a;"></div>
+<div style="position: absolute; left: 20px; top: 138px; width: 34px; height: 14px; background: #c44a40;"></div>
+<div style="position: absolute; left: 28px; top: 128px; width: 18px; height: 12px; background: #c44a40;"></div>
+<div style="position: absolute; left: 34px; top: 120px; width: 6px; height: 10px; background: #8a3730;"></div>
+<sc-if value="{{isNight}}" hint-placeholder-val="{{false}}">
+<div class="beam" style="position: absolute; left: -260px; top: 136px; width: 297px; height: 96px; background: linear-gradient(90deg, rgba(255,214,140,0), rgba(255,206,120,.30)); clip-path: polygon(0 0, 100% 38%, 100% 62%, 0 100%);"></div>
+<div class="beam" style="position: absolute; left: 37px; top: 136px; width: 480px; height: 96px; animation-delay: -2.2s; background: linear-gradient(90deg, rgba(255,206,120,.30), rgba(255,214,140,0)); clip-path: polygon(0 38%, 100% 0, 100% 100%, 0 62%);"></div>
+<div style="position: absolute; left: -8px; top: 138px; width: 90px; height: 84px; background: radial-gradient(ellipse at 50% 50%, rgba(255,214,140,.5) 0 22%, rgba(255,214,140,0) 70%); pointer-events: none;"></div>
+</sc-if>
+
+<!-- ----- seabed sand ----- -->
+<div style="position: absolute; left: 0; top: 1600px; width: 1180px; height: 200px; box-sizing: border-box; background: {{sand}}; border-top: 8px solid {{sandEdge}};"></div>
+<div style="position: absolute; left: 60px; top: 1640px; width: 40px; height: 4px; background: {{sandEdge}};"></div>
+<div style="position: absolute; left: 380px; top: 1700px; width: 56px; height: 4px; background: {{sandEdge}};"></div>
+<div style="position: absolute; left: 640px; top: 1664px; width: 48px; height: 4px; background: {{sandEdge}};"></div>
+<div style="position: absolute; left: 880px; top: 1720px; width: 64px; height: 4px; background: {{sandEdge}};"></div>
+<div style="position: absolute; left: 1060px; top: 1676px; width: 40px; height: 4px; background: {{sandEdge}};"></div>
+
+<!-- ----- the cavern: back wall, rock arch, lamps ----- -->
+<div style="position: absolute; left: 150px; top: 1040px; width: 940px; height: 568px; background: {{cavernBack}}; background-image: repeating-linear-gradient(180deg, rgba(0,0,0,.22) 0 3px, rgba(255,255,255,.06) 3px 6px, rgba(0,0,0,0) 6px 28px);"></div>
+<div style="position: absolute; left: 150px; top: 1040px; width: 940px; height: 568px; background: radial-gradient(ellipse at 50% 24%, {{lightTint}} 0 26%, rgba(0,0,0,0) 70%);"></div>
+<sc-for list="{{speckles}}" as="sp" hint-placeholder-count="26">
+<div style="position: absolute; left: {{sp.x}}px; top: {{sp.y}}px; width: {{sp.w}}px; height: 4px; background: {{cavernSpeck}};"></div>
+</sc-for>
+<div style="position: absolute; left: 0; top: 1000px; width: 1180px; height: 300px; background: {{rock}}; clip-path: polygon(0px 0px, 1180px 0px, 1180px 300px, 1104px 300px, 1090px 210px, 1032px 146px, 920px 100px, 756px 68px, 556px 58px, 388px 74px, 262px 112px, 196px 176px, 172px 300px, 0px 300px); box-shadow: inset 0 -10px 24px rgba(0,0,0,.4);"></div>
+<div style="position: absolute; left: 0; top: 1290px; width: 196px; height: 320px; background: {{rock}}; clip-path: polygon(0 0, 100% 0, 82% 16%, 94% 36%, 76% 56%, 90% 78%, 70% 100%, 0 100%);"></div>
+<div style="position: absolute; left: 1074px; top: 1290px; width: 106px; height: 320px; background: {{rock}}; clip-path: polygon(0 0, 100% 0, 100% 100%, 26% 100%, 44% 78%, 20% 56%, 38% 34%, 16% 14%);"></div>
+<div style="position: absolute; left: 320px; top: 1092px; width: 22px; height: 54px; background: {{rock}}; clip-path: polygon(0 0, 100% 0, 50% 100%);"></div>
+<div style="position: absolute; left: 520px; top: 1076px; width: 16px; height: 38px; background: {{rock}}; clip-path: polygon(0 0, 100% 0, 50% 100%);"></div>
+<div style="position: absolute; left: 826px; top: 1084px; width: 18px; height: 46px; background: {{rock}}; clip-path: polygon(0 0, 100% 0, 50% 100%);"></div>
+<div style="position: absolute; left: 980px; top: 1106px; width: 22px; height: 58px; background: {{rock}}; clip-path: polygon(0 0, 100% 0, 50% 100%);"></div>
+<div class="sway" style="position: absolute; left: 300px; top: 1112px; width: 6px; height: 44px; background: {{moss}};"></div>
+<div class="sway" style="position: absolute; left: 620px; top: 1080px; width: 6px; height: 30px; background: {{moss}};"></div>
+<div class="sway" style="position: absolute; left: 902px; top: 1098px; width: 6px; height: 38px; background: {{moss}};"></div>
+<!-- lamps: identical fixtures, hung in the gaps between the objects -->
+<div style="position: absolute; left: 197px; top: 1086px; width: 4px; height: 40px; background: #1b2436;"></div>
+<div style="position: absolute; left: 182px; top: 1122px; width: 34px; height: 12px; background: #7a5230; border-bottom: 4px solid #4a2c1a;"></div>
+<div style="position: absolute; left: 188px; top: 1134px; width: 22px; height: 24px; box-sizing: border-box; border: 4px solid {{lampRim}}; background: {{lampFill}}; box-shadow: 0 0 26px 8px {{lampHalo}};"></div>
+<div style="position: absolute; left: 177px; top: 1158px; width: 44px; height: 300px; background: linear-gradient(180deg, {{coneTint}}, rgba(0,0,0,0)); clip-path: polygon(26% 0, 74% 0, 100% 100%, 0 100%);"></div>
+
+<div style="position: absolute; left: 423px; top: 1086px; width: 4px; height: 40px; background: #1b2436;"></div>
+<div style="position: absolute; left: 408px; top: 1122px; width: 34px; height: 12px; background: #7a5230; border-bottom: 4px solid #4a2c1a;"></div>
+<div style="position: absolute; left: 414px; top: 1134px; width: 22px; height: 24px; box-sizing: border-box; border: 4px solid {{lampRim}}; background: {{lampFill}}; box-shadow: 0 0 26px 8px {{lampHalo}};"></div>
+<div style="position: absolute; left: 403px; top: 1158px; width: 44px; height: 300px; background: linear-gradient(180deg, {{coneTint}}, rgba(0,0,0,0)); clip-path: polygon(26% 0, 74% 0, 100% 100%, 0 100%);"></div>
+
+<div style="position: absolute; left: 712px; top: 1086px; width: 4px; height: 40px; background: #1b2436;"></div>
+<div style="position: absolute; left: 697px; top: 1122px; width: 34px; height: 12px; background: #7a5230; border-bottom: 4px solid #4a2c1a;"></div>
+<div style="position: absolute; left: 703px; top: 1134px; width: 22px; height: 24px; box-sizing: border-box; border: 4px solid {{lampRim}}; background: {{lampFill}}; box-shadow: 0 0 26px 8px {{lampHalo}};"></div>
+<div style="position: absolute; left: 692px; top: 1158px; width: 44px; height: 300px; background: linear-gradient(180deg, {{coneTint}}, rgba(0,0,0,0)); clip-path: polygon(26% 0, 74% 0, 100% 100%, 0 100%);"></div>
+
+<div style="position: absolute; left: 968px; top: 1086px; width: 4px; height: 40px; background: #1b2436;"></div>
+<div style="position: absolute; left: 953px; top: 1122px; width: 34px; height: 12px; background: #7a5230; border-bottom: 4px solid #4a2c1a;"></div>
+<div style="position: absolute; left: 959px; top: 1134px; width: 22px; height: 24px; box-sizing: border-box; border: 4px solid {{lampRim}}; background: {{lampFill}}; box-shadow: 0 0 26px 8px {{lampHalo}};"></div>
+<div style="position: absolute; left: 948px; top: 1158px; width: 44px; height: 300px; background: linear-gradient(180deg, {{coneTint}}, rgba(0,0,0,0)); clip-path: polygon(26% 0, 74% 0, 100% 100%, 0 100%);"></div>
+
+<div class="lumen-x" style="position: absolute; left: 62px; top: 1436px; width: 14px; height: 30px; background: {{glow}}; clip-path: polygon(50% 0, 100% 34%, 76% 100%, 24% 100%, 0 34%); box-shadow: 0 0 22px 6px {{glow}};"></div>
+<div class="lumen-x" style="position: absolute; left: 1128px; top: 1402px; width: 12px; height: 26px; background: {{glow}}; clip-path: polygon(50% 0, 100% 34%, 76% 100%, 24% 100%, 0 34%); box-shadow: 0 0 22px 6px {{glow}};"></div>
+<div class="lumen-x" style="position: absolute; left: 706px; top: 1526px; width: 16px; height: 34px; background: {{glow}}; clip-path: polygon(50% 0, 100% 34%, 76% 100%, 24% 100%, 0 34%); box-shadow: 0 0 26px 8px {{glow}};"></div>
+<div style="position: absolute; left: 60px; top: 1658px; width: 44px; height: 4px; background: {{sandEdge}}; opacity: .5;"></div>
+<div style="position: absolute; left: 380px; top: 1706px; width: 58px; height: 4px; background: {{sandEdge}}; opacity: .5;"></div>
+<div style="position: absolute; left: 656px; top: 1672px; width: 48px; height: 4px; background: {{sandEdge}}; opacity: .5;"></div>
+<div style="position: absolute; left: 880px; top: 1724px; width: 64px; height: 4px; background: {{sandEdge}}; opacity: .5;"></div>
+<div style="position: absolute; left: 1064px; top: 1684px; width: 40px; height: 4px; background: {{sandEdge}}; opacity: .5;"></div>
+
+%%REEF_BEHIND%%
+
+<!-- ----- the five objects, left to right along the sand ----- -->
+<div style="position: absolute; left: 32px; top: 1602px; width: 142px; height: 20px; border-radius: 50%; background: rgba(0,0,0,.35);"></div>
+<div style="position: absolute; left: 240px; top: 1602px; width: 172px; height: 20px; border-radius: 50%; background: rgba(0,0,0,.35);"></div>
+<div style="position: absolute; left: 438px; top: 1602px; width: 260px; height: 20px; border-radius: 50%; background: rgba(0,0,0,.35);"></div>
+<div style="position: absolute; left: 744px; top: 1602px; width: 196px; height: 18px; border-radius: 50%; background: rgba(0,0,0,.3);"></div>
+<div style="position: absolute; left: 990px; top: 1604px; width: 140px; height: 18px; border-radius: 50%; background: rgba(0,0,0,.3);"></div>
+<!-- MAILBOX -->
+<button class="obj" onClick="{{goContact}}" onMouseEnter="{{hoverContact}}" onFocus="{{hoverContact}}" onMouseLeave="{{unhover}}" onBlur="{{unhover}}" aria-label="Post box, open contact" style="position: absolute; left: 38px; top: 1441px; width: 130px; height: 175px;">
+<span class="lift" style="position: absolute; inset: 0; line-height: 0;">%%MAILBOX%%</span>
+<span class="tag" style="top: -40px;">CONTACT ME</span>
+</button>
+
+<!-- BOOKSHELF -->
+<button class="obj" onClick="{{goSkills}}" onMouseEnter="{{hoverSkills}}" onFocus="{{hoverSkills}}" onMouseLeave="{{unhover}}" onBlur="{{unhover}}" aria-label="Bookshelf, open the skills archive" style="position: absolute; left: 250px; top: 1314px; width: 152px; height: 302px;">
+<span class="lift wood" style="position: absolute; inset: 0; display: flex; flex-direction: column; box-sizing: border-box; padding: 6px 6px 0; background: #4a2c18; border: 7px solid #2f1b0d; border-bottom: 0; box-shadow: inset 0 0 0 3px #5f3a20, 6px 6px 0 rgba(0,0,0,.4);">
+<sc-for list="{{shelves}}" as="shelf" hint-placeholder-count="5">
+<span style="height: 56px; display: flex; align-items: flex-end; gap: 2px; padding: 0 3px; background: #24150a; border-bottom: 7px solid #5f3a20; box-shadow: inset 0 -10px 12px -8px rgba(0,0,0,.9);">
+<sc-for list="{{shelf.books}}" as="bk" hint-placeholder-count="9">
+<span style="width: {{bk.w}}px; height: {{bk.h}}px; background: {{bk.c}}; box-shadow: inset -2px 0 0 rgba(0,0,0,.4), inset 2px 0 0 rgba(255,255,255,.18), inset 0 3px 0 {{bk.band}}; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+<span style="writing-mode: vertical-rl; transform: rotate(180deg); font-size: 9px; line-height: 1; color: rgba(255,255,255,.82); white-space: nowrap;">{{bk.title}}</span>
+</span>
+</sc-for>
+</span>
+</sc-for>
+</span>
+<span class="tag" style="top: -36px;">SKILLS ARCHIVE</span>
+</button>
+
+<!-- DESK + COMPUTER -->
+<button class="obj" onClick="{{goProjects}}" onMouseEnter="{{hoverProjects}}" onFocus="{{hoverProjects}}" onMouseLeave="{{unhover}}" onBlur="{{unhover}}" aria-label="Computer, open the projects hub" style="position: absolute; left: 448px; top: 1376px; width: 240px; height: 240px;">
+<span class="lift" style="position: absolute; inset: 0;">
+<span style="position: absolute; left: 30px; top: 0; width: 174px; height: 106px; box-sizing: border-box; border: 6px solid #1c2233; border-radius: 4px; background: #0d1b3a; box-shadow: 0 0 26px rgba(103,232,249,.4), inset 0 0 0 3px #38465f;">
+<span class="scan" style="position: absolute; inset: 4px; background-color: #0a1930;">
+<span style="position: absolute; left: 0; top: 0; width: 100%; height: 11px; background: #17304a;"></span>
+<span style="position: absolute; left: 3px; top: 3px; width: 5px; height: 5px; background: #f87171;"></span>
+<span style="position: absolute; left: 11px; top: 3px; width: 5px; height: 5px; background: #fbbf24;"></span>
+<span style="position: absolute; left: 19px; top: 3px; width: 5px; height: 5px; background: #4ade80;"></span>
+<span style="position: absolute; left: 30px; top: 4px; width: 52px; height: 4px; background: #5f86ad;"></span>
+<span style="position: absolute; left: 5px; top: 16px; width: 10px; height: 4px; background: #67e8f9;"></span>
+<span style="position: absolute; left: 19px; top: 16px; width: 46px; height: 4px; background: #86efac;"></span>
+<span style="position: absolute; left: 5px; top: 25px; width: 96px; height: 4px; background: #3f6ba8;"></span>
+<span style="position: absolute; left: 5px; top: 33px; width: 74px; height: 4px; background: #3f6ba8;"></span>
+<span style="position: absolute; left: 5px; top: 41px; width: 88px; height: 4px; background: #3f6ba8;"></span>
+<span style="position: absolute; left: 5px; top: 50px; width: 10px; height: 4px; background: #67e8f9;"></span>
+<span style="position: absolute; left: 19px; top: 50px; width: 58px; height: 4px; background: #86efac;"></span>
+<span style="position: absolute; left: 5px; top: 59px; width: 64px; height: 4px; background: #3f6ba8;"></span>
+<span style="position: absolute; left: 5px; top: 67px; width: 40px; height: 4px; background: #3f6ba8;"></span>
+<span style="position: absolute; left: 5px; top: 76px; width: 10px; height: 4px; background: #67e8f9;"></span>
+<span class="blink" style="position: absolute; left: 19px; top: 76px; width: 7px; height: 5px; background: #a5f3fc;"></span>
+</span>
+</span>
+<span style="position: absolute; left: 100px; top: 106px; width: 30px; height: 12px; background: #1c2233;"></span>
+<span style="position: absolute; left: 82px; top: 118px; width: 66px; height: 8px; background: #141a28;"></span>
+<span style="position: absolute; left: 210px; top: 60px; width: 24px; height: 66px; box-sizing: border-box; background: #1b2231; border: 3px solid #0e1320;">
+<span style="position: absolute; left: 3px; top: 5px; width: 12px; height: 12px; background: #39465e; border-radius: 50%;"></span>
+<span style="position: absolute; left: 2px; top: 24px; width: 14px; height: 28px; background: #2a3448;"></span>
+</span>
+<span style="position: absolute; left: 0; top: 126px; width: 240px; height: 16px; background: #7a5230; border-bottom: 5px solid #43281a; box-shadow: inset 0 5px 0 rgba(255,255,255,.14);"></span>
+<span style="position: absolute; left: 44px; top: 114px; width: 98px; height: 12px; background: #b9c0cc; box-shadow: inset 0 -4px 0 #7b8493, inset 0 3px 0 #e2e6ec;"></span>
+<span style="position: absolute; left: 152px; top: 116px; width: 16px; height: 10px; background: #b9c0cc; border-radius: 4px;"></span>
+<span style="position: absolute; left: 128px; top: 142px; width: 112px; height: 98px; box-sizing: border-box; background: #6b4226; border: 5px solid #43281a;"></span>
+<span style="position: absolute; left: 134px; top: 168px; width: 100px; height: 5px; background: #43281a;"></span>
+<span style="position: absolute; left: 134px; top: 194px; width: 100px; height: 5px; background: #43281a;"></span>
+<span style="position: absolute; left: 168px; top: 152px; width: 26px; height: 6px; background: #c9a227;"></span>
+<span style="position: absolute; left: 168px; top: 178px; width: 26px; height: 6px; background: #c9a227;"></span>
+<span style="position: absolute; left: 168px; top: 204px; width: 26px; height: 6px; background: #c9a227;"></span>
+<span style="position: absolute; left: 6px; top: 142px; width: 12px; height: 98px; background: #5b3a22;"></span>
+<span style="position: absolute; left: 30px; top: 150px; width: 42px; height: 90px; box-sizing: border-box; background: #1b2231; border: 3px solid #0e1320;">
+<span style="position: absolute; left: 5px; top: 7px; width: 26px; height: 5px; background: #38465f;"></span>
+<span style="position: absolute; left: 5px; top: 16px; width: 26px; height: 5px; background: #38465f;"></span>
+<span style="position: absolute; left: 5px; top: 30px; width: 9px; height: 9px; background: #4ade80;"></span>
+<span style="position: absolute; left: 5px; top: 50px; width: 26px; height: 12px; background: #2a3448;"></span>
+</span>
+</span>
+<span class="tag" style="top: -36px;">MY PROJECTS HUB</span>
+</button>
+
+<!-- BULLETIN BOARD -->
+<button class="obj" onClick="{{goExperience}}" onMouseEnter="{{hoverExperience}}" onFocus="{{hoverExperience}}" onMouseLeave="{{unhover}}" onBlur="{{unhover}}" aria-label="Bulletin board, open the professional journey" style="position: absolute; left: 740px; top: 1302px; width: 204px; height: 314px;">
+<span style="position: absolute; left: 24px; top: 168px; width: 14px; height: 146px; background: #5b3a22; box-shadow: inset -4px 0 0 #3a2415;"></span>
+<span style="position: absolute; left: 166px; top: 168px; width: 14px; height: 146px; background: #5b3a22; box-shadow: inset -4px 0 0 #3a2415;"></span>
+<span style="position: absolute; left: 18px; top: 304px; width: 168px; height: 10px; background: #43281a;"></span>
+<span class="lift" style="position: absolute; left: 0; top: 0; width: 204px; height: 168px; box-sizing: border-box; border: 10px solid #6b4226; background-color: #c08a4e; background-image: radial-gradient(#a06f38 1px, transparent 2px); background-size: 9px 9px; box-shadow: inset 0 0 26px rgba(0,0,0,.35), 5px 5px 0 rgba(0,0,0,.32);">
+<span style="position: absolute; left: 44px; top: 30px; width: 96px; height: 70px; background: #cfe3ef; box-shadow: 0 0 0 3px #f7f1e0, 3px 3px 0 rgba(0,0,0,.25);">
+<span style="position: absolute; left: 6px; top: 10px; width: 22px; height: 18px; background: #6fa45a;"></span>
+<span style="position: absolute; left: 30px; top: 6px; width: 16px; height: 12px; background: #6fa45a;"></span>
+<span style="position: absolute; left: 50px; top: 14px; width: 30px; height: 22px; background: #6fa45a;"></span>
+<span style="position: absolute; left: 14px; top: 38px; width: 26px; height: 18px; background: #6fa45a;"></span>
+<span style="position: absolute; left: 54px; top: 46px; width: 20px; height: 14px; background: #6fa45a;"></span>
+<span style="position: absolute; left: 24px; top: 24px; width: 6px; height: 6px; background: #c02626;"></span>
+<span style="position: absolute; left: 62px; top: 40px; width: 6px; height: 6px; background: #c02626;"></span>
+</span>
+<span style="position: absolute; left: 6px; top: 6px; width: 34px; height: 42px; background: #f7f1e0; box-shadow: 2px 2px 0 rgba(0,0,0,.25);"></span>
+<span style="position: absolute; left: 10px; top: 14px; width: 26px; height: 3px; background: #8a8378;"></span>
+<span style="position: absolute; left: 10px; top: 21px; width: 20px; height: 3px; background: #8a8378;"></span>
+<span style="position: absolute; left: 10px; top: 28px; width: 24px; height: 3px; background: #8a8378;"></span>
+<span style="position: absolute; left: 6px; top: 58px; width: 34px; height: 40px; background: #fdf4c6; box-shadow: 2px 2px 0 rgba(0,0,0,.25);"></span>
+<span style="position: absolute; left: 10px; top: 66px; width: 26px; height: 3px; background: #8a8378;"></span>
+<span style="position: absolute; left: 10px; top: 73px; width: 18px; height: 3px; background: #8a8378;"></span>
+<span style="position: absolute; left: 6px; top: 106px; width: 46px; height: 38px; background: #dfe9ef; box-shadow: 2px 2px 0 rgba(0,0,0,.25);"></span>
+<span style="position: absolute; left: 10px; top: 112px; width: 38px; height: 22px; background: #4a89c8;"></span>
+<span style="position: absolute; left: 62px; top: 110px; width: 50px; height: 36px; background: #f7f1e0; box-shadow: 2px 2px 0 rgba(0,0,0,.25);"></span>
+<span style="position: absolute; left: 66px; top: 118px; width: 40px; height: 3px; background: #8a8378;"></span>
+<span style="position: absolute; left: 66px; top: 125px; width: 30px; height: 3px; background: #8a8378;"></span>
+<span style="position: absolute; left: 124px; top: 108px; width: 52px; height: 40px; background: #ffe3e3; box-shadow: 2px 2px 0 rgba(0,0,0,.25);"></span>
+<span style="position: absolute; left: 128px; top: 116px; width: 40px; height: 3px; background: #8a8378;"></span>
+<span style="position: absolute; left: 128px; top: 123px; width: 32px; height: 3px; background: #8a8378;"></span>
+<span style="position: absolute; left: 146px; top: 8px; width: 38px; height: 44px; background: #f7f1e0; box-shadow: 2px 2px 0 rgba(0,0,0,.25);"></span>
+<span style="position: absolute; left: 150px; top: 12px; width: 30px; height: 22px; background: #d98f4a;"></span>
+<span style="position: absolute; left: 150px; top: 40px; width: 28px; height: 3px; background: #8a8378;"></span>
+<span style="position: absolute; left: 148px; top: 62px; width: 36px; height: 38px; background: #fdf4c6; box-shadow: 2px 2px 0 rgba(0,0,0,.25);"></span>
+<span style="position: absolute; left: 152px; top: 70px; width: 28px; height: 3px; background: #8a8378;"></span>
+<span style="position: absolute; left: 20px; top: 2px; width: 8px; height: 8px; background: #dc2626; box-shadow: 1px 1px 0 #7f1d1d;"></span>
+<span style="position: absolute; left: 88px; top: 24px; width: 8px; height: 8px; background: #2563eb; box-shadow: 1px 1px 0 #1e3a8a;"></span>
+<span style="position: absolute; left: 160px; top: 4px; width: 8px; height: 8px; background: #dc2626; box-shadow: 1px 1px 0 #7f1d1d;"></span>
+<span style="position: absolute; left: 20px; top: 54px; width: 8px; height: 8px; background: #16a34a; box-shadow: 1px 1px 0 #14532d;"></span>
+<span style="position: absolute; left: 82px; top: 106px; width: 8px; height: 8px; background: #dc2626; box-shadow: 1px 1px 0 #7f1d1d;"></span>
+<span style="position: absolute; left: 146px; top: 104px; width: 8px; height: 8px; background: #2563eb; box-shadow: 1px 1px 0 #1e3a8a;"></span>
+</span>
+<span class="tag" style="top: -52px;">PROFESSIONAL<br>JOURNEY &amp; EXPERIENCE</span>
+</button>
+
+<!-- EASEL + GALLERY -->
+<button class="obj" onClick="{{goArt}}" onMouseEnter="{{hoverArt}}" onFocus="{{hoverArt}}" onMouseLeave="{{unhover}}" onBlur="{{unhover}}" aria-label="Easel, open the studio" style="position: absolute; left: 996px; top: 1268px; width: 128px; height: 352px;">
+<span class="lift" style="position: absolute; inset: 0;">
+<span style="position: absolute; left: 2px; top: 6px; width: 54px; height: 62px; box-sizing: border-box; border: 6px solid #2b2113; background: #f0e2c4; box-shadow: 3px 3px 0 rgba(0,0,0,.3);">
+<span style="position: absolute; left: 0; top: 30px; width: 42px; height: 20px; background: #7fb0d8;"></span>
+<span style="position: absolute; left: 6px; top: 14px; width: 30px; height: 20px; background: #d9412b; clip-path: polygon(50% 0, 100% 100%, 0 100%);"></span>
+<span style="position: absolute; left: 16px; top: 14px; width: 10px; height: 6px; background: #fff;"></span>
+</span>
+<span style="position: absolute; left: 68px; top: 14px; width: 54px; height: 62px; box-sizing: border-box; border: 6px solid #6b4226; background: #2f4a3f; box-shadow: 3px 3px 0 rgba(0,0,0,.3);">
+<span style="position: absolute; left: 12px; top: 10px; width: 18px; height: 20px; background: #e8c9a0;"></span>
+<span style="position: absolute; left: 10px; top: 6px; width: 22px; height: 9px; background: #1f2430;"></span>
+<span style="position: absolute; left: 6px; top: 30px; width: 30px; height: 20px; background: #1f2430;"></span>
+</span>
+<span style="position: absolute; left: 82px; top: 92px; width: 42px; height: 48px; box-sizing: border-box; border: 5px solid #2b2113; background: #6f9a72; box-shadow: 3px 3px 0 rgba(0,0,0,.3);">
+<span style="position: absolute; left: 0; top: 20px; width: 32px; height: 18px; background: #3d7a4a;"></span>
+<span style="position: absolute; left: 6px; top: 4px; width: 12px; height: 10px; background: #cfe3ef;"></span>
+</span>
+<span style="position: absolute; left: 14px; top: 246px; width: 10px; height: 106px; background: #4a2c1a; transform: rotate(7deg);"></span>
+<span style="position: absolute; left: 92px; top: 246px; width: 10px; height: 106px; background: #4a2c1a; transform: rotate(-7deg);"></span>
+<span style="position: absolute; left: 54px; top: 152px; width: 10px; height: 200px; background: #3a2415;"></span>
+<span style="position: absolute; left: 4px; top: 150px; width: 108px; height: 104px; box-sizing: border-box; border: 7px solid #6b4226; background: #6f8a7a; display: flex; align-items: center; justify-content: center; line-height: 0; overflow: hidden; box-shadow: 3px 3px 0 rgba(0,0,0,.35);"><img class="px" src="/_blob/bbac8b819d18f11e6978432efeae2e19" width="76" height="102" alt="Pixel study after the Mona Lisa"></span>
+<span style="position: absolute; left: -4px; top: 246px; width: 124px; height: 12px; background: #6b4226; box-shadow: inset 0 -4px 0 rgba(0,0,0,.3);"></span>
+<span style="position: absolute; left: 76px; top: 258px; width: 44px; height: 18px; background: #c9a978; border-radius: 10px; box-shadow: inset 0 -4px 0 rgba(0,0,0,.2);"></span>
+<span style="position: absolute; left: 82px; top: 262px; width: 7px; height: 7px; background: #dc2626;"></span>
+<span style="position: absolute; left: 93px; top: 262px; width: 7px; height: 7px; background: #2563eb;"></span>
+<span style="position: absolute; left: 104px; top: 262px; width: 7px; height: 7px; background: #fbbf24;"></span>
+</span>
+<span class="tag" style="top: -36px;">STUDIO</span>
+</button>
+
+%%REEF_FRONT%%
+
+<!-- ----- Ping and his speech bubble ----- -->
+<div style="position: absolute; left: {{px}}px; top: {{py}}px; width: {{pw}}px; height: {{ph}}px; z-index: 12; pointer-events: none; transition: left {{dur}} cubic-bezier(.4,0,.2,1), top {{dur}} cubic-bezier(.4,0,.2,1);">
+<div class="{{bobCls}}">
+<div class="peng" style="transform: scaleX({{faceFlip}}); transition: transform .5s cubic-bezier(.4,0,.2,1); line-height: 0;"><img class="px" src="{{pingSrc}}" width="{{pw}}" height="{{ph}}" alt=""></div>
+<sc-if value="{{showSay}}" hint-placeholder-val="{{true}}">
+<div class="say" style="position: absolute; left: {{sayX}}px; top: {{sayY}}px; width: 320px; box-sizing: border-box; padding: 12px 14px; background: rgba(7,13,28,.95); border: 3px solid {{glow}}; box-shadow: 5px 5px 0 rgba(0,0,0,.5);">
+<div class="pf" style="font-size: 9px; color: {{glow}}; padding-bottom: 8px;">PING</div>
+<div style="font-size: 24px; line-height: 1.05; color: #fdf1d6;">{{say}}</div>
+<sc-if value="{{sayTailLeft}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; left: -14px; top: 22px; width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-right: 12px solid {{glow}};"></div>
+</sc-if>
+<sc-if value="{{sayTailRight}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: 322px; top: 22px; width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-left: 12px solid {{glow}};"></div>
+</sc-if>
+</div>
+</sc-if>
+</div>
+</div>
+
+</div>
+<!-- /WORLD -->
+
+<!-- ----- overlays: welcome card, surface button, place label ----- -->
+<sc-if value="{{isHome}}" hint-placeholder-val="{{true}}">
+<div class="pop" style="position: absolute; left: 576px; top: 84px; width: 584px; box-sizing: border-box; padding: 26px 28px; display: flex; flex-direction: column; gap: 16px; background: rgba(7,13,28,.92); border: 3px solid #000; box-shadow: 8px 8px 0 rgba(0,0,0,.5);">
+<h1 class="pf" style="margin: 0; font-size: 22px; line-height: 1.4; color: #f2f8fc; width: 536px; height: 66px;">WELCOME TO HARI PRIYA'S OUTPOST</h1>
+<p class="typed" style="--n: 36; margin: 0; font-size: 23px; line-height: 1.3; color: #8fa6cf;">Built with code, art, and curiosity.</p>
+<p style="margin: 0; font-size: 25px; line-height: 1.3; color: #cfe0f5;">Hi 👋 I&rsquo;m Hari Priya, a software engineer with 4+ years of experience. I enjoy solving problems, debugging, experimenting, and exploring new things.</p>
+<p style="margin: 0; font-size: 25px; line-height: 1.3; color: #cfe0f5;">I built this imaginary world to showcase my portfolio.</p>
+<p style="margin: 0; font-size: 25px; line-height: 1.3; color: #cfe0f5;">Meet Ping <img class="px" src="/_blob/cf2a3e2a7784c9056665ce1bcd502887" width="36" height="34" alt="" style="display: inline-block; vertical-align: -8px; margin: 0 4px;"> He knows his way around. Just follow him - he&rsquo;ll show you what&rsquo;s where.</p>
+<p style="margin: 0; font-size: 23px; line-height: 1.3; color: #8fa6cf;">Short on time? Skip straight to my r&eacute;sum&eacute;.</p>
+<div style="display: flex; justify-content: center; gap: 14px; padding-top: 12px; border-top: 2px solid #1d2b4a;">
+<button class="pxbtn cyan" onClick="{{goRoom}}" style="flex-shrink: 0;">DIVE IN TO EXPLORE</button>
+<button class="pxbtn ghost" onClick="{{openResume}}" style="flex-shrink: 0;">VIEW RESUME</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isRoom}}" hint-placeholder-val="{{false}}">
+<button class="pxbtn" onClick="{{goHome}}" style="position: absolute; right: 20px; top: 20px;">BACK TO SURFACE</button>
+</sc-if>
+
+<div class="pf" style="position: absolute; right: 20px; bottom: 18px; display: flex; gap: 10px; align-items: center; padding: 10px 12px; font-size: 9px; line-height: 1; background: rgba(8,4,28,.92); color: #f0c675; border: 3px solid #22d3ee; box-shadow: 0 0 16px rgba(34,211,238,.5);">
+<span>{{place}}</span>
+</div>
+
+<sc-if value="{{zoomed}}" hint-placeholder-val="{{false}}">
+<div class="say" style="position: absolute; left: 20px; bottom: 18px; width: 300px; box-sizing: border-box; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; background: rgba(7,13,28,.95); border: 3px solid {{glow}}; box-shadow: 5px 5px 0 rgba(0,0,0,.5);">
+<div class="peng" style="width: 72px; height: 68px; flex-shrink: 0; line-height: 0;"><img class="px" src="/_blob/cf2a3e2a7784c9056665ce1bcd502887" width="72" height="68" alt=""></div>
+<div style="font-size: 22px; line-height: 1.05; color: #fdf1d6;">{{say}}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{resumeOpen}}" hint-placeholder-val="{{false}}">
+<section class="pop" aria-label="Résumé" style="position: absolute; left: 0; top: 0; width: 1180px; height: 900px; z-index: 18; box-sizing: border-box; display: flex; flex-direction: column; background: #5b6670;">
+<div style="display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: #2b3a45; border-bottom: 4px solid #2f7d7a;">
+<span style="width: 12px; height: 12px; background: #f87171;"></span><span style="width: 12px; height: 12px; background: #fbbf24;"></span><span style="width: 12px; height: 12px; background: #4ade80;"></span>
+<span class="pf" style="font-size: 12px; color: #ffffff; padding-left: 10px;">HARI PRIYA'S RESUME</span>
+<a class="pxbtn" href="%%RESUME_PDF%%" download="Hari-Priya-Resume.pdf" style="margin-left: auto; font-size: 9px; padding: 8px 10px; min-height: 36px;">DOWNLOAD PDF</a>
+<button class="pxbtn" onClick="{{closeResume}}" style="font-size: 9px; padding: 8px 10px; min-height: 36px;">CLOSE</button>
+</div>
+<div style="flex-grow: 1; overflow: auto; display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 28px 0 40px;">
+%%RESUME_PAGES%%
+</div>
+</section>
+</sc-if>
+
+<!-- ----- close-up panels, one per object ----- -->
+<sc-if value="{{openProjects}}" hint-placeholder-val="{{false}}">
+<section class="pop" aria-label="Projects on the computer" style="position: absolute; left: 330px; top: 28px; width: 826px; height: 844px; box-sizing: border-box; padding: 18px 18px 0; display: flex; flex-direction: column; background: #262d3f; border: 8px solid #161c2b; border-radius: 10px; box-shadow: 10px 10px 0 rgba(0,0,0,.5), inset 0 0 0 3px #3a465f;">
+<div class="scan" style="flex-grow: 1; box-sizing: border-box; overflow: auto; background-color: #0a1930; border: 4px solid #0a1020; box-shadow: inset 0 0 60px rgba(103,232,249,.22);">
+<div style="position: sticky; top: 0; z-index: 4; display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #1c3a6b; border-bottom: 3px solid #0a1020;">
+<span style="width: 12px; height: 12px; background: #f87171;"></span><span style="width: 12px; height: 12px; background: #fbbf24;"></span><span style="width: 12px; height: 12px; background: #4ade80;"></span>
+<span class="pf" style="font-size: 10px; color: #cfe8ff; padding-left: 8px;">HARI_PRIYA_PROJECTS.EXE</span>
+<button class="pxbtn" onClick="{{goRoom}}" style="margin-left: auto; font-size: 9px; padding: 8px 10px; min-height: 36px;">CLOSE</button>
+</div>
+<div style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+<sc-if value="{{projList}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 18px;">
+<div style="font-size: 26px; color: #8ad7ff;">koh@reef:~/projects$ ls -1</div>
+<sc-for list="{{projects}}" as="p" hint-placeholder-count="4">
+<button class="termrow" onClick="{{p.pick}}">
+<span class="pf" style="font-size: 12px; color: #67e8f9;">{{p.num}}</span>
+<span style="font-size: 27px; color: #fdf1d6;">{{p.slug}}</span>
+<span style="font-size: 23px; color: #7fb2d8; margin-left: auto;">{{p.tag}}</span>
+<span class="pf" style="font-size: 10px; color: #fde047;">RUN &gt;</span>
+</button>
+</sc-for>
+<div style="font-size: 24px; color: #7fb2d8;">4 projects · pick one to run it</div>
+<div style="font-size: 26px; color: #8ad7ff;">koh@reef:~/projects$ <span class="blink">_</span></div>
+</div>
+</sc-if>
+<sc-if value="{{projOpen}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px;">
+<div style="font-size: 26px; color: #8ad7ff;">koh@reef:~/projects$ ./run {{proj.slug}} --about</div>
+<div style="display: flex; flex-direction: column; gap: 14px; padding: 20px; background: #10233f; border: 3px solid #67e8f9;">
+<div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;">
+<span class="pf" style="font-size: 14px; line-height: 1.4; color: #fdf1d6;">{{proj.name}}</span>
+<span style="font-size: 22px; color: #fde047;">{{proj.tag}}</span>
+</div>
+<p style="margin: 0; font-size: 25px; line-height: 1.15; color: #cfe0f5;">{{proj.desc}}</p>
+<p style="margin: 0; font-size: 25px; line-height: 1.15; color: #cfe0f5;">{{proj.desc2}}</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 22px; color: #a5f3fc;">
+<sc-for list="{{proj.stack}}" as="t" hint-placeholder-count="4">
+<span style="padding: 2px 10px; border: 2px solid #67e8f9;">{{t.name}}</span>
+</sc-for>
+</div>
+<div style="display: flex; gap: 20px; font-size: 24px; color: #fde047;"><span>&gt; [live link]</span><span>&gt; [source]</span></div>
+</div>
+<button class="termrow" onClick="{{backProj}}">
+<span class="pf" style="font-size: 11px; color: #fde047;">&lt; BACK</span>
+<span style="font-size: 25px; color: #cfe0f5;">cd .. to go back to the project list</span>
+</button>
+<div style="font-size: 26px; color: #8ad7ff;">koh@reef:~/projects$ <span class="blink">_</span></div>
+</div>
+</sc-if>
+</div>
+</div>
+<div style="display: flex; align-items: center; justify-content: center; gap: 14px; height: 54px;">
+<span style="width: 10px; height: 10px; background: #4ade80; box-shadow: 0 0 10px #4ade80;"></span>
+<span class="pf" style="font-size: 9px; color: #94a3b8;">HARI-TRON 2000</span>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{openSkills}}" hint-placeholder-val="{{false}}">
+<section class="pop" aria-label="Skills archive" style="position: absolute; left: 330px; top: 28px; width: 826px; height: 844px; box-sizing: border-box; padding: 16px; display: flex; flex-direction: column; background: #4a2c18; border: 8px solid #2a170d; box-shadow: 10px 10px 0 rgba(0,0,0,.5);">
+<div class="wood" style="flex-grow: 1; overflow: auto; box-sizing: border-box; padding: 14px 12px 16px; background: #5b3a22; box-shadow: inset 0 0 0 3px #6d4728, inset 0 0 60px rgba(0,0,0,.55);">
+
+<div class="phead" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 4px 8px 8px; background: #5b3a22;">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<div class="pf" style="font-size: 9px; line-height: 1.6; color: #e8c98a;">SKILLS ARCHIVE</div>
+<h2 class="pf" style="margin: 0; font-size: 22px; line-height: 1.4; color: #fdf1d6;">One book, one skill</h2>
+<p style="margin: 0; font-size: 24px; line-height: 1.15; color: #e0c69a;">Every book on Hari Priya's shelf is something she builds with.</p>
+</div>
+<button class="pxbtn" onClick="{{goRoom}}">BACK</button>
+</div>
+
+%%SKILL_SHELVES%%
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{openExperience}}" hint-placeholder-val="{{false}}">
+<section class="pop" aria-label="Professional journey" style="position: absolute; left: 330px; top: 28px; width: 826px; height: 844px; box-sizing: border-box; overflow: auto; padding: 26px; display: flex; flex-direction: column; gap: 18px; background-color: #c08a4e; background-image: radial-gradient(#a06f38 1.5px, transparent 2.5px); background-size: 13px 13px; border: 14px solid #6b4226; box-shadow: 10px 10px 0 rgba(0,0,0,.5), inset 0 0 40px rgba(0,0,0,.3);">
+<div class="phead" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; background: #c08a4e;">
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; background: #1b1f3b; color: #fdf1d6;">
+<div class="pf" style="font-size: 9px; color: #fbbf24;">JOURNEY BOARD</div>
+<h2 class="pf" style="margin: 0; font-size: 20px;">Experience</h2>
+</div>
+<button class="pxbtn" onClick="{{goRoom}}">BACK</button>
+</div>
+%%EXPERIENCE_ARTICLES%%
+</section>
+</sc-if>
+
+<sc-if value="{{openArt}}" hint-placeholder-val="{{false}}">
+<section class="pop" aria-label="Studio" style="position: absolute; left: 330px; top: 28px; width: 826px; height: 844px; box-sizing: border-box; overflow: auto; padding: 26px; display: flex; flex-direction: column; gap: 18px; background: #120a2c; color: #fdf1d6; border: 14px solid #2a1060; box-shadow: 0 0 34px rgba(232,121,249,.4);">
+<div class="phead" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; background: #f3ece0; color: #241528;">
+<div style="display: flex; flex-direction: column; gap: 10px;">
+<div class="pf" style="font-size: 9px; color: #8a5a10;">OFF THE CLOCK</div>
+<h2 class="pf" style="margin: 0; font-size: 22px; color: #241528;">The studio</h2>
+</div>
+<button class="pxbtn" onClick="{{goRoom}}">BACK</button>
+</div>
+<sc-if value="{{artWall}}" hint-placeholder-val="{{true}}">
+<p style="margin: 0; font-size: 25px; line-height: 1.3; color: #f3e9ff;">A few pieces, picked at random.</p>
+</sc-if>
+<sc-if value="{{artWall}}" hint-placeholder-val="{{true}}">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px;">
+<sc-for list="{{artworks}}" as="art" hint-placeholder-count="8">
+<button onClick="{{art.open}}" aria-label="{{art.label}}" style="margin: 0; height: 232px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 8px; border: 8px solid {{art.frame}}; background: #efe6d4; box-shadow: 4px 4px 0 rgba(0,0,0,.45); cursor: pointer;">
+<img src="{{art.blob}}" alt="" style="max-width: 100%; max-height: 100%; width: auto; height: auto; display: block;">
+</button>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{artOpen}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #efe6d4; border: 10px solid #6b4226; box-shadow: 5px 5px 0 rgba(0,0,0,.45);">
+<img src="{{artBlob}}" alt="{{artAlt}}" style="max-width: 100%; max-height: 520px; width: auto; height: auto; display: block;">
+</div>
+<div style="display: flex; align-items: center; gap: 14px;">
+<button class="pxbtn" onClick="{{artBack}}">BACK TO THE WALL</button>
+<div style="font-size: 23px; line-height: 1.3; color: #c3aee4;">{{artAlt}}</div>
+</div>
+</sc-if>
+<p style="margin: 0; font-size: 23px; line-height: 1.3; color: #c3aee4;">What Hari Priya makes when she&rsquo;s not building things.</p>
+</section>
+</sc-if>
+
+<sc-if value="{{openContact}}" hint-placeholder-val="{{false}}">
+<section class="pop" aria-label="Contact" style="position: absolute; left: 330px; top: 28px; width: 826px; height: 844px; box-sizing: border-box; overflow: auto; padding: 26px; display: flex; flex-direction: column; gap: 18px; background: #16202c; color: #e6f6ff; border: 10px solid #22303c; box-shadow: 10px 10px 0 rgba(0,0,0,.5);">
+<div class="phead" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; background: #16202c;">
+<div style="display: flex; flex-direction: column; gap: 10px;">
+<div class="pf" style="font-size: 9px; color: #fbbf24;">THE MAILBOX</div>
+<h2 class="pf" style="margin: 0; font-size: 22px;">Contact me</h2>
+</div>
+<button class="pxbtn" onClick="{{goRoom}}">BACK</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px;">
+<a href="{{mailHref}}" style="display: flex; align-items: center; gap: 18px; padding: 16px 20px; background: #f3ece0; color: #14243c; text-decoration: none; box-shadow: 4px 4px 0 rgba(0,0,0,.4);">
+<span style="flex-shrink: 0; line-height: 0;">%%LOGO_MAIL%%</span>
+<span style="font-size: 27px; line-height: 1;">{{email}}</span>
+</a>
+<a href="%%LINKEDIN_URL%%" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; gap: 18px; padding: 16px 20px; background: #f3ece0; color: #14243c; text-decoration: none; box-shadow: 4px 4px 0 rgba(0,0,0,.4);">
+<span style="flex-shrink: 0; line-height: 0;">%%LOGO_LINKEDIN%%</span>
+<span style="font-size: 27px; line-height: 1;">%%LINKEDIN_TEXT%%</span>
+</a>
+</div>
+<form style="display: flex; flex-direction: column; gap: 12px; padding: 20px; background: #9fb0bd; border: 5px solid #22303c; box-shadow: 5px 5px 0 rgba(0,0,0,.4); color: #0a1020;">
+<div class="pf" style="font-size: 10px;">DROP A LETTER IN</div>
+<div class="field"><label for="c-name">Name</label><input id="c-name" type="text" value="{{cName}}" onChange="{{setName}}"></div>
+<div class="field"><label for="c-mail">Email</label><input id="c-mail" type="email" value="{{cMail}}" onChange="{{setMail}}"></div>
+<div class="field"><label for="c-msg">Message</label><textarea id="c-msg" rows="4" value="{{cMsg}}" onChange="{{setMsg}}"></textarea></div>
+<a class="pxbtn" href="{{letterHref}}" style="align-self: flex-start;">SEND IT DOWN</a>
+<p style="margin: 0; font-size: 21px; line-height: 1.25; color: #16202c;">This opens your own mail app with the letter written out, addressed to Hari Priya. It goes from your own email account, so press send there and she can reply straight to you.</p>
+</form>
+</section>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"glow":{"editor":"color","default":"#22d3ee","options":["#22d3ee","#a3e635","#e879f9","#fbbf24"]},"startTheme":{"editor":"enum","options":["day","night"],"default":"day"},"$preview":{"width":1440,"height":900}}'>
+/* Project cards shown on the computer screen. Edit the text here. */
+%%PROJECTS_JS%%
+%%ARTWORKS_JS%%
+
+class Component extends DCLogic {
+  /* state: where we are, what is open, the theme, and Ping's position + line */
+  constructor(...a) {
+    super(...a);
+    const p = (a[0] || {});
+    this.state = {
+      view: 'home', open: null, proj: null, theme: p.startTheme === 'night' ? 'night' : 'day',  /* sunrise unless asked otherwise */
+      px: 78, py: 270, face: 1, dur: '1.3s',
+      say: "Hi, I'm Ping! I'll be your guide around Hari Priya's outpost. Come on, let's dive in and explore!",
+      resume: false, hoverSay: null, art: null, cName: '', cMail: '', cMsg: ''
+    };
+    this.lastMove = 0;
+  }
+  componentWillUnmount() { clearTimeout(this.t); }
+  /* One line of Ping dialogue per place. */
+  lines() {
+    return {
+      home: ["Hi, I'm Ping! I'll be your guide around Hari Priya's outpost. Come on, let's dive in and explore!"],
+      room: ["Have a look around. There's plenty to explore."],
+      skills: ["The shelf where Hari Priya keeps every skill. I dust it. I do not read it."],
+      projects: ["Hari Priya's projects live in here. Still warm, still running."],
+      experience: ["Hari Priya's journey so far, pinned up one note at a time."],
+      art: ["This is the art wall. Hari Priya made all of it. I mostly supervised."],
+      contact: ["Want to reach Hari Priya? Post it here. I handle deliveries personally."]
+    };
+  }
+  /* Where Ping stands, and the point the camera centres on, per place. */
+  spots() {
+    return {
+      home: { px: 78, py: 270 },
+      room: { px: 470, py: 1300 },
+      contact: { cx: 103, cy: 1516, px: 186, py: 1470 },
+      skills: { cx: 326, cy: 1450, px: 408, py: 1470 },
+      projects: { cx: 568, cy: 1442, px: 616, py: 1470 },
+      experience: { cx: 842, cy: 1380, px: 660, py: 1470 },
+      art: { cx: 1060, cy: 1420, px: 880, py: 1470 }
+    };
+  }
+  /* Camera over the 1180x1800 world: pan for places, pan + zoom for objects. */
+  camera(view) {
+    if (view === 'home') return { tx: 0, ty: 0, s: 1 };
+    if (view === 'room') return { tx: 0, ty: -900, s: 1 };
+    const sp = this.spots()[view];
+    const s = 1.9;
+    const tx = Math.min(60, Math.max(1120 - 1180 * s, 165 - sp.cx * s));
+    const ty = Math.min(0, Math.max(860 - 1800 * s, 450 - sp.cy * s));
+    return { tx: tx, ty: ty, s: s };
+  }
+  /* The one place the contact address is written down. */
+  email() { return '%%EMAIL_JS%%'; }
+  /* The letter the mailbox hands to the visitor's own mail app, rebuilt as they type.
+     The subject never changes. The body reads like an ordinary email: the message,
+     then the name and address signed underneath. The real From is whichever account
+     the visitor's mail app sends with. */
+  letterHref(st) {
+    const name = (st.cName || '').trim(), from = (st.cMail || '').trim(), msg = (st.cMsg || '').trim();
+    const subject = 'Hello from the outpost';
+    const sign = [name, from].filter(Boolean).join('\n');
+    const body = sign ? msg + '\n\n' + sign : msg;
+    return 'mailto:' + this.email() + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  }
+  /* Ping speaks. A hovered line is transient and never overrides an open panel's. */
+  say(text) {
+    if (this.state.open || this.state.resume) { return; }
+    this.setState({ hoverSay: text });
+  }
+  /* Navigate: move Ping, move the camera, then open the close-up panel. */
+  go(v) {
+    clearTimeout(this.t);
+    if (this.state.resume) this.setState({ resume: false });
+
+    const sp = this.spots()[v];
+    const st = this.state;
+    const face = Math.abs(sp.px - st.px) > 8 ? (sp.px > st.px ? 1 : -1) : st.face;
+    const pool = this.lines()[v] || [];
+    this.setState({ view: v, open: null, proj: null, art: null, px: sp.px, py: sp.py, face: face, dur: '1.3s', say: pool[0] || st.say, hoverSay: null });
+    if (sp.cx != null) {
+      this.t = setTimeout(() => this.setState({ open: v, face: sp.cx < sp.px + 76 ? -1 : 1, hoverSay: null }), 1250);
+    }
+  }
+  /* On the reef, Ping follows the cursor (throttled, and only between moves). */
+  onMove(e) {
+    const st = this.state;
+    if (st.view !== 'room') return;
+    const now = Date.now();
+    if (now - this.lastMove < 90) return;
+    this.lastMove = now;
+    const r = e.currentTarget.getBoundingClientRect();
+    const k = r.width / 1180 || 1;
+    const cam = this.camera(st.view);
+    const wx = ((e.clientX - r.left) / k - cam.tx) / cam.s;
+    const wy = ((e.clientY - r.top) / k - cam.ty) / cam.s;
+    const px = Math.max(0, Math.min(1028, wx - 76));
+    const py = Math.max(1040, Math.min(1470, wy - 90));
+    if (Math.abs(px - st.px) < 14 && Math.abs(py - st.py) < 14) return;
+    const face = Math.abs(px - st.px) > 10 ? (px > st.px ? 1 : -1) : st.face;
+    this.setState({ px: px, py: py, face: face, dur: '0.9s' });
+  }
+  /* Colours for the two skies. Everything theme-dependent is decided here. */
+  palette(night) {
+    return {
+      waveTop: night ? '#2f6fd8' : '#3f9fd0', foam: night ? '#7df9ff' : '#f4fbff',
+      skyNote: night ? 'A night inspired by Van Gogh.' : 'A sunrise inspired by ukiyo-e.',
+      skyBg: night
+        ? 'linear-gradient(180deg,#140a38 0 18%,#22105c 18% 40%,#351a85 40% 62%,#4a22a8 62% 82%,#6b2ec0 82% 100%)'
+        : 'linear-gradient(180deg,#e0736a 0 14%,#ec9277 14% 28%,#f4b08a 28% 44%,#f7c9a0 44% 62%,#f9dcb6 62% 80%,#f6e6c8 80% 100%)',
+      seaBg: night
+        ? 'linear-gradient(180deg,#2f6fd8 0 4%,#2a5fc0 4% 12%,#2450a6 12% 24%,#1e418a 24% 38%,#18346e 38% 60%,#122650 60% 100%)'
+        : 'linear-gradient(180deg,#46b4e4 0 4%,#379dcd 4% 12%,#2b85b6 12% 24%,#226d9c 24% 38%,#19567e 38% 60%,#113e60 60% 100%)',
+      rock: night ? '#241a4e' : '#3c4f4a', rockHi: night ? '#42307f' : '#55706a',
+      moss: night ? '#17b88a' : '#4f8a3c',
+      rockTop: night ? '#2e2166' : '#4e6a5f', rockStrata: night ? '#221856' : '#38524b', tidepool: night ? '#22d3ee' : '#6fc6da',
+      sand: night ? '#3a2e70' : '#cbb488', sandEdge: night ? '#57479c' : '#a98f66',
+      cavernBack: night ? '#3a2f63' : '#7d5735', cavernSpeck: night ? '#544483' : '#5e3f27',
+      reefRock: night ? '#2a1f57' : '#5e6a5a',
+      rayA: night ? 0.08 : 0.06, waveA: night ? 0.5 : 0.62, waveLine: night ? '#7df9ff' : '#bfe9f5', waveLineSoft: night ? '#c04bd6' : '#7fc4dc',
+      deepBg: night ? '#122650' : '#123657',
+      lampGlass: night ? 'rgba(255,214,120,.95)' : '#cfe0ea',
+      lampBeamGlow: night ? '0 0 34px 12px rgba(255,206,120,.75)' : 'inset 0 0 0 2px rgba(255,255,255,.35)',
+      lampFill: night ? 'rgba(125,249,255,.92)' : 'rgba(247,214,138,.95)',
+      lampHalo: night ? 'rgba(34,211,238,.85)' : 'rgba(255,208,120,.6)',
+      lampRim: night ? '#0e7490' : '#a9762f',
+      lightTint: night ? 'rgba(34,211,238,.6)' : 'rgba(255,214,140,.26)',
+      coneTint: night ? 'rgba(34,211,238,.48)' : 'rgba(255,214,140,.2)'
+    };
+  }
+
+  /* Scenery generated from one seed, so the stars and shelves fall the same way every render. */
+  scenery() {
+    let seed = 11;
+    const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+
+    const sunRows = [];
+    for (let i = 0; i < 22; i++) { const y = i - 11 + 0.5; sunRows.push({ w: Math.round(Math.sqrt(121 - y * y)) * 20 }); }
+    const moonRows = [];
+    for (let i = 0; i < 14; i++) {
+      const y = i - 7 + 0.5; const a = Math.sqrt(Math.max(0, 49 - y * y));
+      let right = a; const dy = y + 2;
+      if (36 - dy * dy > 0) right = Math.min(a, 3 - Math.sqrt(36 - dy * dy));
+      moonRows.push({ w: Math.max(0, Math.round(right + a)) * 8, l: Math.round(7 - a) * 8 });
+    }
+    const fuji = [];
+    for (let i = 0; i < 30; i++) {
+      const c = i < 6 ? '#f6efe2' : i === 6 ? '#c9d3dc' : i < 20 ? '#4a6a8f' : '#3a5575';
+      fuji.push({ w: Math.min(560, Math.round((30 + i * 18.5) / 10) * 10), c: c });
+    }
+    const stars = [];
+    for (let i = 0; i < 30; i++) stars.push({ x: Math.round(rnd() * 1160), y: Math.round(rnd() * 520), d: (rnd() * 3).toFixed(2) });
+    const orbs = [[140, 80], [460, 60], [700, 110], [900, 70], [250, 300], [620, 360], [980, 250], [760, 470], [120, 470]]
+      .map((o) => ({ x: o[0], y: o[1], d: (-rnd() * 3).toFixed(2) }));
+    const motes = [];
+    for (let i = 0; i < 18; i++) motes.push({ x: Math.round(rnd() * 1170), y: Math.round(760 + rnd() * 940), sz: i % 4 === 0 ? 6 : 4, dur: (12 + rnd() * 12).toFixed(1), d: (-rnd() * 18).toFixed(1) });
+    const bubbles = [];
+    for (let i = 0; i < 10; i++) bubbles.push({ x: Math.round(120 + rnd() * 940), sz: i % 3 === 0 ? 12 : 6, dur: (7 + rnd() * 5).toFixed(1), d: (-rnd() * 10).toFixed(1) });
+    const trail = [];
+    for (let i = 0; i < 8; i++) trail.push({ x: Math.round(rnd() * 18), y: Math.round(rnd() * 380), sz: i % 3 === 0 ? 8 : 5, dur: (5 + rnd() * 4).toFixed(1), d: (-rnd() * 8).toFixed(1) });
+    const jellies = [[70, 760, 44, 64], [980, 700, 34, 50], [300, 1120, 30, 44], [640, 1660, 28, 40], [1120, 1320, 38, 56]]
+      .map((j, i) => ({ x: j[0], y: j[1], w: j[2], h: j[3], d: (-i * 1.3).toFixed(1) }));
+    const speckles = [];
+    for (let i = 0; i < 26; i++) speckles.push({ x: Math.round(190 + rnd() * 850), y: Math.round(1070 + rnd() * 500), w: Math.round(10 + rnd() * 28) });
+    const palette = ['#7f1d1d', '#1e3a5f', '#14532d', '#854d0e', '#4c1d95', '#115e59', '#9a3412', '#831843'];
+    const bands = ['#e8c98a', '#cbd5e1', '#f0c675', '#e2e8f0'];
+    %%SKILL_BOOKS_JS%%
+    const shelves = [0, 1, 2, 3, 4].map((s) => {
+      const books = [];
+      for (let i = 0; i < 8; i++) {
+        const t = titles[(i * 3 + s * 5) % titles.length];
+        books.push({ w: 12 + Math.round(rnd() * 4), h: 34 + Math.round(rnd() * 14), c: palette[(i * 3 + s * 2) % palette.length], band: bands[(i + s) % bands.length], title: t });
+      }
+      return { books: books };
+    });
+    const waves = []; for (let i = 0; i < 25; i++) waves.push({ i: i });
+    return {
+      sunRows: sunRows, moonRows: moonRows, fuji: fuji, stars: stars, orbs: orbs,
+      motes: motes, bubbles: bubbles, trail: trail, jellies: jellies,
+      speckles: speckles, shelves: shelves, waves: waves
+    };
+  }
+
+  /* The sidebar rows and the place name in the corner. */
+  navigation(st, night) {
+    const labels = { home: night ? "THE SHORE · STARRY NIGHT" : "THE SHORE · SUNRISE", room: 'THE CAVERN', skills: 'SKILLS ARCHIVE', projects: 'PROJECTS HUB', experience: 'JOURNEY BOARD', art: 'THE STUDIO', contact: 'MAILBOX' };
+    const mk = (d) => ({ label: d[1], sub: d[2], color: d[3], cls: st.view === d[0] ? 'on' : '', current: st.view === d[0] ? 'page' : 'false', go: () => this.go(d[0]) });
+    const navPlaces = [['home', 'SURFACE', 'The shore above', '#fbbf24'], ['room', 'DIVE IN', 'The cavern below', '#22d3ee']].map(mk);
+    const navObjects = [
+      ['skills', 'SKILLS', 'Bookshelf', '#b91c1c'], ['projects', 'PROJECTS', 'Computer', '#67e8f9'],
+      ['experience', 'EXPERIENCE', 'Bulletin board', '#c08a4e'], ['art', 'STUDIO', 'Easel & frames', '#e879f9'],
+      ['contact', 'CONTACT', 'Mail box', '#fb7185']
+    ].map(mk);
+    return { place: labels[st.view], navPlaces: navPlaces, navObjects: navObjects };
+  }
+
+  /* Everything the markup reads: state, the three groups above, and the handlers. */
+  renderVals() {
+    const st = this.state;
+    const night = st.theme === 'night';
+    const glow = this.props.glow ?? '#22d3ee';
+    const cam = this.camera(st.view);
+    const zoomed = st.view !== 'home' && st.view !== 'room';
+    /* The bubble sits to Ping's right, but hops to his left rather than run off the edge. */
+    const sayBase = st.view === 'home' ? 160 : 140;
+    const sayFlip = (st.px + sayBase + 320 > 1168) && (st.px - 344 > 12);
+    const sayX = sayFlip ? -344 : sayBase;
+
+    return Object.assign({}, this.palette(night), this.scenery(), this.navigation(st, night), {
+      glow: glow, tx: cam.tx, ty: cam.ty, s: cam.s,
+      px: Math.round(st.px), py: Math.round(st.py), face: st.face, faceFlip: st.view === 'home' ? -1 : -st.face, dur: st.dur,
+      pingSrc: (st.view === 'home') ? '/_blob/a7f5f6d223d9c34b80f7ce0919da0426' : '/_blob/bd4bf7e45b05a842798ae5da08e53e48',
+      pw: (st.view === 'home') ? 158 : 152, ph: (st.view === 'home') ? 114 : 142,
+      bobCls: (st.view === 'home') ? '' : 'bob',
+      sayX: sayX, sayY: st.view === 'home' ? -86 : -10,
+      sayTailLeft: !sayFlip, sayTailRight: sayFlip,
+      say: st.hoverSay || st.say, showSay: !zoomed && !st.resume, zoomed: zoomed && !st.resume,
+      isDay: !night, isNight: night,
+      toggleSky: () => this.setState({ theme: night ? 'day' : 'night' }),
+      knobCls: night ? 'night' : '', skyWord: night ? 'NIGHT' : 'SUNRISE',
+      isHome: st.view === 'home', isRoom: st.view === 'room',
+      projList: st.open === 'projects' && st.proj === null,
+      projOpen: st.open === 'projects' && st.proj !== null,
+      projects: PROJECTS.map((p, i) => ({ num: p.num, slug: p.slug, tag: p.tag, pick: () => this.setState({ proj: i }) })),
+      proj: st.proj === null ? PROJECTS[0] : Object.assign({}, PROJECTS[st.proj], { stack: PROJECTS[st.proj].stack.map((n) => ({ name: n })) }),
+      backProj: () => this.setState({ proj: null }),
+      openSkills: st.open === 'skills', openProjects: st.open === 'projects', openExperience: st.open === 'experience', openArt: st.open === 'art', openContact: st.open === 'contact',
+      artWall: st.art === null, artOpen: st.art !== null,
+      artBlob: st.art === null ? ARTWORKS[0].blob : ARTWORKS[st.art].blob,
+      artAlt: st.art === null ? '' : ARTWORKS[st.art].alt,
+      artBack: () => this.setState({ art: null }),
+      artworks: ARTWORKS.map((a, i) => ({
+        blob: a.blob, label: 'Open: ' + a.alt,
+        frame: i % 2 === 0 ? '#6b4226' : '#2b2113',
+        open: () => this.setState({ art: i })
+      })),
+      resumeOpen: st.resume,
+      cName: st.cName, cMail: st.cMail, cMsg: st.cMsg,
+      setName: (e) => this.setState({ cName: e.target.value }),
+      setMail: (e) => this.setState({ cMail: e.target.value }),
+      setMsg: (e) => this.setState({ cMsg: e.target.value }),
+      letterHref: this.letterHref(st),
+      email: this.email(), mailHref: 'mailto:' + this.email(),
+      openResume: () => this.setState({ resume: true }),
+      closeResume: () => this.setState({ resume: false }),
+      onMove: (e) => this.onMove(e),
+      goHome: () => this.go('home'), goRoom: () => this.go('room'),
+      goSkills: () => this.go('skills'), goProjects: () => this.go('projects'), goExperience: () => this.go('experience'), goArt: () => this.go('art'), goContact: () => this.go('contact'),
+      hoverSkills: () => this.say(this.lines().skills[0]),
+      hoverProjects: () => this.say(this.lines().projects[0]),
+      hoverExperience: () => this.say(this.lines().experience[0]),
+      hoverArt: () => this.say(this.lines().art[0]),
+      hoverContact: () => this.say(this.lines().contact[0]),
+      unhover: () => { if (!this.state.open && !this.state.resume) { this.setState({ hoverSay: null }); } }
+    });
+  }
+}
+</script>
+</body>
+</html>

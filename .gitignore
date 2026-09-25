@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# generated: python3 gen/build.py, gen/export.py, osascript -l JavaScript gen/resume_pages.js
+build/
+site/
+out/

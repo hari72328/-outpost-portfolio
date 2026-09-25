@@ -1,0 +1,31 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build the artboard",
+      "type": "shell",
+      "command": "python3 gen/build.py",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run the checks",
+      "type": "shell",
+      "command": "python3 gen/check.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "Rebuild everything (resume pages, artboard)",
+      "type": "shell",
+      "command": "osascript -l JavaScript gen/resume_pages.js && python3 gen/build.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run locally (http://localhost:8000)",
+      "type": "shell",
+      "command": "python3 gen/serve.py",
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}
