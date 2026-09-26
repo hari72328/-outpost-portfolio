@@ -13,6 +13,8 @@ NAME = "HARI PRIYA"
 ROLE = "Software Engineer"
 EMAIL = "itsharipriya8919@gmail.com"
 LINKEDIN_URL = "https://www.linkedin.com/in/haripriya-pb/"
+#: where the site is published; used for search engines and link previews
+SITE_URL = "https://hpriya03.github.io/outpost-portfolio/"
 #: set to "" to hide every GitHub button on the site
 GITHUB_URL = "https://github.com/hpriya03"
 #: the contact forms send through Web3Forms (web3forms.com) to EMAIL. This key is

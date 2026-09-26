@@ -11,6 +11,8 @@ simple scrolling page.
 
 No framework, no package manager, nothing to install except Python 3.
 
+**Live site:** https://hpriya03.github.io/outpost-portfolio/
+
 ## Features
 
 * **An explorable world** for laptops and desktops, with a sunrise and a night sky
@@ -45,6 +47,7 @@ Almost everything lives in **`gen/content.py`**. Edit it, rebuild, refresh.
 | What | Where in `gen/content.py` |
 | --- | --- |
 | Name, role, email | `NAME`, `ROLE`, `EMAIL` |
+| Your site's address | `SITE_URL` |
 | LinkedIn and GitHub links | `LINKEDIN_URL`, `GITHUB_URL` (set to `""` to hide) |
 | Phone introduction | `INTRO` |
 | "Open to opportunities" line | `AVAILABILITY`, `AVAILABILITY_MORE` (set to `""` to hide) |

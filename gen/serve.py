@@ -30,6 +30,9 @@ def page():
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {title}
 <meta name="description" content="Hari Priya, software engineer. An interactive portfolio: follow Ping the penguin through an underwater cavern of skills, projects, experience and art.">
+<link rel="canonical" href="{panels._html(content.SITE_URL)}">
+<meta property="og:url" content="{panels._html(content.SITE_URL)}">
+<meta property="og:type" content="website">
 <meta property="og:title" content="Hari Priya's Outpost">
 <meta property="og:description" content="An interactive portfolio you walk around with Ping the penguin.">
 <link rel="icon" type="image/png" href="/_blob/cf2a3e2a7784c9056665ce1bcd502887">
