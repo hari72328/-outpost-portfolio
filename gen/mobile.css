@@ -1,0 +1,191 @@
+/* The phone page's styles (see mobile_view in panels.py). Everything is scoped
+   to #mobile, and every colour comes from the two themes defined first. */
+#m-back{display:none;position:fixed;left:10px;bottom:14px;z-index:50;padding:12px 14px;font:400 10px/1.4 'Press Start 2P',monospace;color:#06121c;background:#67e8f9;border:3px solid #06121c;box-shadow:3px 3px 0 #000;cursor:pointer}
+#m-back:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+#mobile *{box-sizing:border-box}
+/* ---- the two skies: every colour on the phone page comes from these ---- */
+#mobile{--bg:#fdf6ee;--bg2:#f3e2cf;--top:#f9d7bd;--surface:#ffffff;--surface2:#fbf1e6;--border:#ecd6bf;--text:#2b2233;--muted:#7a6a6e;--accent:#e0736a;--accent-ink:#ffffff;--accent2:#0e7490;--warn:#b42318;--good:#15803d;--head:rgba(253,246,238,.97);--shadow:rgba(90,50,30,.14);--plank:#c9a27a;--cork:#f1dfc8;--cork-dot:rgba(120,80,40,.16);--frame:#8a5a36}
+#mobile.night{--bg:#0b0a1f;--bg2:#17143d;--top:#1d1646;--surface:#161433;--surface2:#1f1c45;--border:#2e2a63;--text:#ecebff;--muted:#a9a6d6;--accent:#67e8f9;--accent-ink:#06121c;--accent2:#c4b5fd;--warn:#fca5a5;--good:#86efac;--head:rgba(11,10,31,.97);--shadow:rgba(0,0,0,.45);--plank:#4a3b78;--cork:#191636;--cork-dot:rgba(196,181,253,.10);--frame:#5b4a8f}
+#mobile{display:none;color:var(--text);background:linear-gradient(180deg,var(--top) 0,var(--bg) 460px) var(--bg);font:20px/1.35 'VT323',monospace;-webkit-text-size-adjust:100%}
+#mobile .pf{font-family:'Press Start 2P',monospace;font-weight:400}
+#mobile a{color:inherit}
+/* ---- top buttons and menu ---- */
+#mobile .sky-btn, #mobile .menu-btn{position:fixed;top:8px;z-index:20;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--accent);background:var(--surface);border:2px solid var(--border);box-shadow:0 4px 12px var(--shadow);cursor:pointer}
+#mobile .sky-btn{right:60px}
+#mobile .menu-btn{right:8px;flex-direction:column;gap:5px}
+#mobile .menu-btn span{display:block;width:20px;height:3px;background:currentColor}
+#mobile .sky-btn .moon, #mobile.night .sky-btn .sun{display:none}
+#mobile.night .sky-btn .moon{display:block}
+#mobile .menu-shade{position:fixed;inset:0;z-index:21;background:rgba(0,0,0,.5)}
+#mobile .menu{position:fixed;top:0;right:0;bottom:0;z-index:22;width:min(300px,82vw);overflow-y:auto;display:flex;flex-direction:column;padding:14px 16px 20px;background:var(--bg);border-left:2px solid var(--border)}
+#mobile .menu[hidden], #mobile .menu-shade[hidden]{display:none}
+#mobile .menu:focus{outline:none}
+#mobile .menu-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:12px;border-bottom:2px solid var(--border);font-size:12px}
+#mobile .menu-head .home{color:var(--text);text-decoration:none}
+#mobile .menu-close{width:40px;height:40px;font:28px/1 'VT323',monospace;color:var(--accent);background:transparent;border:2px solid var(--border);cursor:pointer}
+#mobile .menu > a{position:relative;display:block;padding:12px 4px;font-size:24px;color:var(--text);text-decoration:none;border-bottom:1px solid var(--border)}
+#mobile .menu > a:hover, #mobile .menu > a:active{color:var(--accent);background:var(--surface2);padding-left:20px}
+#mobile .menu > a:hover::before, #mobile .menu > a:active::before{content:"▸";position:absolute;left:4px;color:var(--accent)}
+#mobile .menu > a[aria-current="true"]{color:var(--accent);border-left:4px solid var(--accent);padding-left:14px}
+#mobile .menu .links{margin-top:16px}
+#mobile .menu .explore{margin-top:12px}
+/* ---- buttons ---- */
+#mobile .links{display:flex;gap:10px}
+#mobile .resume-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;font-size:11px;text-decoration:none;color:var(--accent-ink);background:var(--accent);border:0;box-shadow:0 4px 0 var(--shadow)}
+#mobile .ibtn{flex:none;display:flex;align-items:center;justify-content:center;width:48px;height:48px;color:var(--accent);background:var(--surface);border:2px solid var(--accent)}
+#mobile .lbtn{flex:1;display:flex;font-family:inherit;cursor:pointer;align-items:center;justify-content:center;gap:10px;min-height:48px;font-size:20px;text-decoration:none;color:var(--text);background:var(--surface);border:2px solid var(--accent)}
+#mobile .lbtn svg{color:var(--accent)}
+#mobile .ibtn:hover, #mobile .lbtn:hover, #mobile .ibtn:active, #mobile .lbtn:active{color:var(--accent-ink);background:var(--accent)}
+#mobile .lbtn:hover svg, #mobile .lbtn:active svg{color:var(--accent-ink)}
+#mobile .explore, #mobile .send{min-height:48px;padding:10px 14px;font:400 10px/1.5 'Press Start 2P',monospace;color:var(--accent-ink);background:var(--accent);border:0;box-shadow:0 4px 0 var(--shadow);cursor:pointer}
+#mobile .dive{display:flex;align-items:center;justify-content:center;min-height:48px;font-size:10px;line-height:1.5;text-decoration:none;color:var(--accent);background:transparent;border:2px solid var(--accent)}
+#mobile :is(.resume-btn,.ibtn,.lbtn,.dive,.explore,.send,.menu-btn,.sky-btn,.more > summary,.studio > summary,.top){transition:transform .12s steps(2),filter .12s steps(2),color .15s,border-color .15s,background-color .15s;-webkit-tap-highlight-color:transparent}
+#mobile :is(.resume-btn,.explore,.send):hover{filter:brightness(1.08)}
+#mobile :is(.resume-btn,.ibtn,.lbtn,.dive,.explore,.send,.menu-btn,.sky-btn,.more > summary,.studio > summary):active{transform:translateY(2px)}
+#mobile :is(a,button,summary,input,textarea):focus-visible{outline:3px solid var(--accent2);outline-offset:3px}
+#mobile .menu-btn:focus:not(:focus-visible){outline:none}
+/* ---- intro ---- */
+#mobile .intro{max-width:620px;margin:0 auto;padding:34px 18px 8px}
+#mobile h1{margin:0 0 12px;font-size:20px;line-height:1.4;color:var(--text)}
+#mobile .lead{margin:0 0 14px;color:var(--text)}
+#mobile .avail{display:flex;align-items:baseline;gap:10px;margin:0 0 18px;font-size:20px;line-height:1.3;color:var(--muted)}
+#mobile .avail strong{font-weight:400;color:var(--good)}
+#mobile .live{flex:none;align-self:flex-start;margin-top:.42em;width:9px;height:9px;background:var(--good);box-shadow:0 0 0 0 var(--good);animation:m-live 2s steps(4) infinite}
+#mobile .name{position:relative;display:inline-block;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#mobile .name .sp{display:inline-block;width:.6em}
+#mobile .name .ch{display:inline-block;animation:m-drop .45s steps(4) calc(var(--i) * 70ms) both,m-wave 7s steps(3) calc(2.4s + var(--i) * 90ms) infinite;transition:translate .12s steps(2),text-shadow .12s steps(2)}
+#mobile .name.hop .ch{animation:m-hop .5s steps(3) calc(var(--i) * 60ms) both}
+#mobile .name .ch:hover{translate:0 -7px;text-shadow:0 0 10px var(--accent)}
+#mobile .name .ch:hover + .ch, #mobile .name .ch:has(+ .ch:hover){translate:0 -3px}
+#mobile .name::before, #mobile .name::after{content:"";position:absolute;width:4px;height:4px;background:var(--accent);box-shadow:0 -5px 0 var(--accent),0 5px 0 var(--accent),-5px 0 0 var(--accent),5px 0 0 var(--accent);animation:m-twinkle 2.4s steps(2) infinite}
+#mobile .name::before{left:-10px;top:-6px}
+#mobile .name::after{right:-14px;bottom:2px;background:var(--accent2);box-shadow:0 -5px 0 var(--accent2),0 5px 0 var(--accent2),-5px 0 0 var(--accent2),5px 0 0 var(--accent2);animation-delay:1.2s}
+#mobile .name:hover::before, #mobile .name:hover::after{animation-duration:.8s}
+/* ---- Ping and the choice ---- */
+#mobile .hero{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:620px;margin:0 auto;padding:26px 18px 6px}
+#mobile .meet{margin:0;align-self:stretch;padding-top:18px;border-top:2px solid var(--border);text-align:center;font-size:21px;color:var(--muted)}
+#mobile .hero .ping{width:158px;height:114px;image-rendering:pixelated;display:block}
+#mobile .speech{position:relative;margin:0;padding:10px 14px 12px;background:var(--surface);border:2px solid var(--accent);box-shadow:0 4px 12px var(--shadow);font-size:20px;line-height:1.25;color:var(--text)}
+#mobile .speech .who{display:block;margin-bottom:4px;font:400 9px/1.4 'Press Start 2P',monospace;color:var(--accent)}
+#mobile .speech .line{position:relative;display:block}
+#mobile .speech .full{color:transparent}
+#mobile .speech .type{position:absolute;left:0;top:0;right:0}
+#mobile .speech .type.on::after{content:"";display:inline-block;width:.45em;height:.9em;margin-left:2px;vertical-align:-.1em;background:var(--accent);animation:blink .7s steps(1) infinite}
+#mobile .hero .speech::before{content:"";position:absolute;left:50%;top:-12px;margin-left:-9px;border:9px solid transparent;border-top:0;border-bottom:12px solid var(--accent)}
+#mobile .choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin:4px 0 0}
+#mobile .choice .explore{margin:0}
+/* ---- the dive: a soft wave, then the sections ---- */
+#mobile .sea{position:relative;margin-top:34px;padding:2px 0 40px;background:var(--bg2);color:var(--text)}
+#mobile .sea::before{content:"";position:absolute;left:0;right:0;top:-12px;height:12px;background:radial-gradient(circle at 12px 12px,var(--bg2) 11px,transparent 12px) 0 0/24px 12px repeat-x}
+#mobile section{max-width:620px;margin:22px auto 0;padding:0 14px}
+#mobile .sea > section:first-child{margin-top:0}
+#mobile .sec{position:sticky;top:0;z-index:4;display:flex;align-items:center;min-height:60px;margin:0 calc(50% - 50vw) 14px;padding:0 116px 0 calc(50vw - 50%);font-size:11px;line-height:1.4;color:var(--text);background:var(--head);border-bottom:2px solid var(--border);transition:color .15s}
+#mobile section:hover .sec{color:var(--accent)}
+#mobile .sec::before{content:"";width:12px;height:12px;margin-right:12px;flex:none;background:var(--c);box-shadow:2px 2px 0 rgba(0,0,0,.35)}
+#mobile .sec .obj{margin-left:10px;font:400 18px/1 'VT323',monospace;color:var(--muted)}
+#mobile .guide{display:flex;align-items:flex-end;gap:10px;margin:0 0 14px}
+#mobile .guide img{width:72px;height:68px;flex:none;image-rendering:pixelated;transition:transform .15s steps(3)}
+#mobile .guide .speech{flex:1;font-size:19px;transition:border-color .15s}
+#mobile .guide .speech::before{content:"";position:absolute;left:-12px;bottom:12px;border:8px solid transparent;border-left:0;border-right:12px solid var(--accent)}
+#mobile .guide:is(:hover,:active) img{transform:translateY(-5px)}
+#mobile .guide:is(:hover,:active) .speech{border-color:var(--accent2)}
+/* ---- one card style for every section ---- */
+#mobile .card{padding:16px 14px;background:var(--surface);border:2px solid var(--border);box-shadow:0 6px 16px var(--shadow);transition:transform .15s steps(3),box-shadow .15s steps(3),border-color .15s}
+#mobile .stack-list, #mobile .tl{display:flex;flex-direction:column;gap:12px}
+#mobile .card h3{margin:0;font-size:11px;line-height:1.55;color:var(--text)}
+#mobile .sub{margin-top:4px;font-size:19px;color:var(--muted)}
+#mobile .pill{flex:none;padding:3px 9px;font-size:17px;color:var(--text);background:var(--surface2);border:1px solid var(--border)}
+#mobile .chips{display:flex;flex-wrap:wrap;gap:6px}
+#mobile .chip{padding:3px 9px;font-size:18px;color:var(--text);background:var(--surface2);border:1px solid var(--border);transition:transform .15s steps(3),border-color .15s,color .15s}
+#mobile .chip:is(:hover,:active){transform:translateY(-2px);border-color:var(--accent);color:var(--accent)}
+/* ---- experience: a timeline ---- */
+#mobile .tl{position:relative;padding-left:22px}
+#mobile .tl::before{content:"";position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:var(--border)}
+#mobile .mrole{position:relative}
+#mobile .mdot{position:absolute;left:-23px;top:20px;width:12px;height:12px;border:2px solid var(--bg2)}
+#mobile .mrole-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:8px}
+#mobile .mrole:is(:hover,:active), #mobile .proj:is(:hover,:active){border-color:var(--accent)}
+#mobile .pts{margin:12px 0 0;padding-left:20px;font:400 16px/1.55 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--text)}
+#mobile .pts li{margin:0 0 8px}
+#mobile .used{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
+#mobile .used > span:first-child{font-size:18px;color:var(--muted);margin-right:2px}
+/* the cork board it is pinned to */
+#mobile .cork{padding:16px 12px 16px 10px;background:var(--cork) radial-gradient(var(--cork-dot) 1px,transparent 1.5px) 0 0/7px 7px;border:2px solid var(--border)}
+#mobile .cork .mdot{width:14px;height:14px;left:-24px;border-radius:50%;box-shadow:1px 2px 0 rgba(0,0,0,.35)}
+/* ---- open / close buttons (experience, projects, studio) ---- */
+#mobile .more > summary, #mobile .studio > summary{display:inline-flex;margin-top:12px;padding:8px 12px;font-size:9px;line-height:1.5;color:var(--accent);background:transparent;border:2px solid var(--accent);cursor:pointer;list-style:none}
+#mobile .more > summary::-webkit-details-marker, #mobile .studio > summary::-webkit-details-marker{display:none}
+#mobile .more > summary:hover, #mobile .studio > summary:hover{background:var(--surface2)}
+#mobile :is(.more,.studio) .when-open, #mobile :is(.more,.studio)[open] .when-closed{display:none}
+#mobile :is(.more,.studio)[open] .when-open{display:inline}
+/* ---- skills: a bookshelf ---- */
+#mobile .shelf{position:relative;padding:10px 0 16px}
+#mobile .shelf:first-child{padding-top:0}
+#mobile .shelf-name{display:flex;align-items:center;gap:8px;margin-bottom:8px;font:400 9px/1.5 'Press Start 2P',monospace;color:var(--muted)}
+#mobile .dot{width:10px;height:10px;flex:none}
+#mobile .extra{margin:10px 0 0;font-size:18px;color:var(--muted)}
+/* each group on a wooden plank, each skill a book spine */
+#mobile .shelf::after{content:"";position:absolute;left:-6px;right:-6px;bottom:4px;height:6px;background:var(--plank);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+#mobile .chip.book{border-left:5px solid var(--spine)}
+/* ---- projects: a computer ---- */
+#mobile .proj-top{display:flex;justify-content:space-between;gap:8px;font-size:17px;color:var(--muted)}
+#mobile .proj-num{color:var(--accent)}
+#mobile .proj h3{margin-top:4px}
+#mobile .proj p{margin:12px 0 0;font:400 16px/1.55 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+#mobile .proj .chips{margin-top:12px}
+/* the computer window around the cards */
+#mobile .window{border:2px solid var(--border);background:var(--surface2);box-shadow:0 6px 16px var(--shadow)}
+#mobile .titlebar{display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:2px solid var(--border);background:var(--surface)}
+#mobile .titlebar span{width:10px;height:10px}
+#mobile .titlebar span:nth-child(1){background:#f87171}
+#mobile .titlebar span:nth-child(2){background:#fbbf24}
+#mobile .titlebar span:nth-child(3){background:#4ade80}
+#mobile .titlebar em{margin-left:8px;font-style:normal;font-size:18px;color:var(--muted)}
+#mobile .window .stack-list{padding:12px}
+#mobile .window .card{box-shadow:none}
+/* ---- studio: framed art ---- */
+#mobile .studio > summary{margin:0;width:100%;justify-content:center}
+#mobile .studio[open] > summary{margin-bottom:14px}
+#mobile .gallery{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#mobile .frame{margin:0;aspect-ratio:1;padding:6px;background:#f3ece0;border:6px solid var(--frame);box-shadow:3px 3px 0 rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;transition:transform .15s steps(3)}
+#mobile .frame:is(:hover,:active){transform:scale(1.03)}
+#mobile .frame img{max-width:100%;max-height:100%;display:block}
+/* ---- contact: the mailbox ---- */
+#mobile .letter{display:flex;flex-direction:column;gap:10px}
+#mobile .letter-title{font-size:10px;line-height:1.5;color:var(--text)}
+#mobile .letter label{display:flex;flex-direction:column;gap:4px;font-size:20px;color:var(--muted)}
+#mobile .letter input, #mobile .letter textarea{font:20px/1.25 'VT323',monospace;padding:9px 11px;color:var(--text);background:var(--surface2);border:2px solid var(--border);border-radius:0;outline:none;-webkit-appearance:none}
+#mobile .letter input:focus, #mobile .letter textarea:focus{border-color:var(--accent)}
+#mobile .letter [aria-invalid="true"]{border-color:var(--warn)}
+#mobile .letter input::placeholder, #mobile .letter textarea::placeholder{color:var(--muted);opacity:.8}
+#mobile .err{margin:-4px 0 2px;font-size:19px;line-height:1.15;color:var(--warn)}
+#mobile .err[hidden], #mobile .sent-ok[hidden]{display:none}
+#mobile .sent-ok{margin:0;font-size:20px;color:var(--good)}
+#mobile .send:disabled{opacity:.7;cursor:progress}
+#mobile .send{align-self:flex-start}
+#mobile .hint{margin:0;font-size:18px;line-height:1.2;color:var(--muted)}
+#mobile .or{margin:18px 0 0;font-size:19px;color:var(--muted)}
+#mobile .links.labelled{margin-top:8px;flex-wrap:wrap}
+#mobile .links.labelled .copy{flex-basis:100%}
+/* the form as an airmail letter with a stamp */
+#mobile .airmail{position:relative;border:0;padding:20px 16px 16px;background:linear-gradient(var(--surface),var(--surface)) padding-box,repeating-linear-gradient(135deg,#e0736a 0 10px,var(--surface) 10px 18px,#3b82f6 18px 28px,var(--surface) 28px 36px) border-box;border:6px solid transparent}
+#mobile .stamp{position:absolute;top:10px;right:10px;width:34px;height:40px;background:var(--accent);outline:3px dotted var(--surface);outline-offset:-5px;transform:rotate(4deg)}
+#mobile .stamp::after{content:"";position:absolute;left:9px;top:10px;width:16px;height:16px;background:var(--surface);opacity:.85;clip-path:polygon(0 30%,50% 0,100% 30%,100% 100%,0 100%)}
+/* ---- the end ---- */
+#mobile .foot{max-width:620px;margin:34px auto 0;padding:18px 14px 8px;border-top:2px solid var(--border);text-align:center}
+#mobile .top{display:inline-block;padding:9px 12px;font-size:9px;color:var(--accent);text-decoration:none;border:2px solid var(--accent)}
+#mobile .top:hover, #mobile .top:active{background:var(--surface2)}
+/* ---- which view shows: the phone page on small screens, the world elsewhere ---- */
+@media (max-width: 760px), (max-height: 500px) {
+  html:not(.explore) #dc-root{display:none}
+  html:not(.explore), html:not(.explore) body{height:auto;overflow:visible}
+  html:not(.explore) #mobile{display:block}
+  html:not(.explore){scroll-behavior:smooth}
+  html.explore #m-back{display:block}
+}
+/* ---- animations ---- */
+@keyframes m-drop{from{transform:translateY(-22px);opacity:0}}
+@keyframes m-wave{0%,8%,100%{transform:none;color:var(--text)}4%{transform:translateY(-5px);color:var(--accent)}}
+@keyframes m-hop{0%,100%{transform:none;color:var(--text)}50%{transform:translateY(-8px);color:var(--accent2)}}
+@keyframes m-twinkle{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1)}}
+@keyframes m-live{0%{box-shadow:0 0 0 0 var(--good)}70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}

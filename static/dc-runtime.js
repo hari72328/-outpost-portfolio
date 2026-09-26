@@ -129,7 +129,10 @@ function activate(node) {
 /* Update live nodes in place so transitions, focus and caret positions survive. */
 function patch(live, fresh) {
   if (live.nodeType === Node.TEXT_NODE) { if (live.data !== fresh.data) live.data = fresh.data; return; }
-  for (const a of Array.from(live.attributes)) if (!fresh.hasAttribute(a.name)) live.removeAttribute(a.name);
+  for (const a of Array.from(live.attributes)) {
+    if (a.name === 'open' && live.localName === 'details') continue;   /* opened by the visitor, not by state */
+    if (!fresh.hasAttribute(a.name)) live.removeAttribute(a.name);
+  }
   for (const a of fresh.attributes) if (live.getAttribute(a.name) !== a.value) live.setAttribute(a.name, a.value);
   live.__on = fresh.__on;
   live.__props = fresh.__props;
@@ -168,11 +171,15 @@ function scheduleRender() {
   queueMicrotask(render);
 }
 
-/* The artboard is a fixed 1440x900; scale it to fit the window. */
+/* The artboard is a fixed 1440x900; scale it to fit the window. The root is
+   position: fixed so the wide artboard never widens the page, and the size is
+   read from the layout viewport: on phones window.innerWidth reports the
+   zoomed-out width instead, and the artboard would not shrink. */
 function fit() {
   const w = component.__w, h = component.__h;
-  const k = Math.min(window.innerWidth / w, window.innerHeight / h);
-  root.style.transform = 'translate(' + (window.innerWidth - w * k) / 2 + 'px,' + (window.innerHeight - h * k) / 2 + 'px) scale(' + k + ')';
+  const vw = document.documentElement.clientWidth, vh = document.documentElement.clientHeight;
+  const k = Math.min(vw / w, vh / h);
+  root.style.transform = 'translate(' + (vw - w * k) / 2 + 'px,' + (vh - h * k) / 2 + 'px) scale(' + k + ')';
 }
 
 function boot() {
@@ -189,7 +196,7 @@ function boot() {
   const preview = spec.$preview || {};
   component.__w = preview.width || 1440;
   component.__h = preview.height || 900;
-  Object.assign(root.style, { position: 'absolute', left: '0', top: '0', transformOrigin: '0 0', width: component.__w + 'px', height: component.__h + 'px' });
+  Object.assign(root.style, { position: 'fixed', left: '0', top: '0', transformOrigin: '0 0', width: component.__w + 'px', height: component.__h + 'px' });
 
   render();
   fit();

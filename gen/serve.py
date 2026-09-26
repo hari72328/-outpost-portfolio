@@ -6,13 +6,18 @@ runtime from static/dc-runtime.js, and images and the PDF from static/_blob/.
 
 The page is re-read from build/Main.dc.html on every request, so after
 python3 gen/build.py a browser refresh is enough."""
-import http.server, mimetypes, pathlib, re, sys
+import http.server, importlib, mimetypes, pathlib, re, sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).parent))
+import content, panels
 
 HERE = pathlib.Path(__file__).parent
 BOARD = HERE.parent / "build" / "Main.dc.html"
 STATIC = HERE.parent / "static"
 
 def page():
+    importlib.reload(content)          # pick up edits without restarting the server
+    importlib.reload(panels)
     html = BOARD.read_text()
     helmet = re.search(r"<helmet>(.*?)</helmet>", html, re.S).group(1)
     body = re.search(r"</helmet>(.*?)</x-dc>", html, re.S).group(1)
@@ -24,14 +29,15 @@ def page():
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {title}
-<meta name="description" content="Hari Priya, software engineer. A pixel-art portfolio: follow Ping the penguin through an underwater cavern of skills, projects, experience and art.">
+<meta name="description" content="Hari Priya, software engineer. An interactive portfolio: follow Ping the penguin through an underwater cavern of skills, projects, experience and art.">
 <meta property="og:title" content="Hari Priya's Outpost">
-<meta property="og:description" content="A pixel-art portfolio you walk around with Ping the penguin.">
+<meta property="og:description" content="An interactive portfolio you walk around with Ping the penguin.">
 <link rel="icon" type="image/png" href="/_blob/cf2a3e2a7784c9056665ce1bcd502887">
 {helmet}
 <style>html,body{{height:100%;overflow:hidden}}</style>
 </head>
 <body>
+{panels.mobile_view()}
 <div id="dc-root"></div>
 <template id="dc-tpl">{body}</template>
 <script type="text/x-dc" id="dc-src" data-props='{script.group(1)}'>{script.group(2)}</script>

@@ -19,11 +19,11 @@ def main():
     fill = {}
     fill.update(json.loads((HERE / "parts.json").read_text()))
     fill.update({name: make() for name, make in panels.PARTS.items()})
-    for key in re.findall(r"%%([A-Z_]+)%%", html):
+    for key in re.findall(r"%%([A-Z0-9_]+)%%", html):
         if key not in fill:
             sys.exit(f"no content for %%{key}%%")
         html = html.replace(f"%%{key}%%", fill[key])
-    left = re.findall(r"%%[A-Z_]+%%", html)
+    left = re.findall(r"%%[A-Z0-9_]+%%", html)
     if left:
         sys.exit(f"unfilled placeholders: {left}")
     problems = check.run(html)

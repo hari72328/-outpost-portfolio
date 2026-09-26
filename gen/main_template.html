@@ -25,6 +25,32 @@ img.px{image-rendering:pixelated;display:block}
 .obj:hover .lift{transform:translateY(-4px);filter:brightness(1.18)}
 .book{transition:transform .15s steps(2),filter .15s steps(2)}       /* skills archive: a book eases off the shelf */
 .book:hover{transform:translateY(-5px);filter:brightness(1.2)}
+/* the sidebar name: letters drop in, a shimmer passes every few seconds, hover ripples */
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sb-name{position:relative;display:inline-block}
+.sb-name .nl-sp{display:inline-block;width:.6em}
+.sb-name .nl{display:inline-block;animation:nl-drop .45s steps(4) calc(var(--i) * 70ms) both,nl-wave 7s steps(3) calc(2.4s + var(--i) * 90ms) infinite;transition:translate .12s steps(2),text-shadow .12s steps(2)}
+.sb-name .nl:hover{translate:0 -6px;text-shadow:0 0 10px #22d3ee}
+.sb-name .nl:hover + .nl,.sb-name .nl:has(+ .nl:hover){translate:0 -3px}
+.sb-name::before,.sb-name::after{content:"";position:absolute;width:3px;height:3px;background:#fde047;box-shadow:0 -4px 0 #fde047,0 4px 0 #fde047,-4px 0 0 #fde047,4px 0 0 #fde047;animation:nl-twinkle 2.4s steps(2) infinite}
+.sb-name::before{left:-12px;top:-5px}
+.sb-name::after{right:-12px;bottom:-2px;background:#22d3ee;box-shadow:0 -4px 0 #22d3ee,0 4px 0 #22d3ee,-4px 0 0 #22d3ee,4px 0 0 #22d3ee;animation-delay:1.2s}
+.sb-name:hover::before,.sb-name:hover::after{animation-duration:.8s}
+@keyframes nl-drop{from{transform:translateY(-18px);opacity:0}}
+@keyframes nl-wave{0%,8%,100%{transform:none;color:#f2f8fc}4%{transform:translateY(-4px);color:#fde047}}
+@keyframes nl-twinkle{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1)}}
+/* the availability line in the sidebar, under the name: a softly pulsing green dot */
+.avail-dot{display:inline-block;flex:none;width:8px;height:8px;background:#4ade80;animation:avail-pulse 2s steps(4) infinite}
+@keyframes avail-pulse{0%{box-shadow:0 0 0 0 #4ade80}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+/* experience timeline: each role's details open on click */
+.role-more>summary{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;font-size:10px;line-height:1.4;color:#fdf1d6;background:#1b1f3b;cursor:pointer;list-style:none;box-shadow:3px 3px 0 rgba(0,0,0,.35);transition:filter .15s steps(2),transform .12s steps(2)}
+.role-more>summary::-webkit-details-marker{display:none}
+.role-more>summary:hover{filter:brightness(1.35)}
+.role-more>summary:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(0,0,0,.35)}
+.role-more .when-open,.role-more[open] .when-closed{display:none}
+.role-more[open] .when-open{display:inline}
+.role{transition:transform .15s steps(3),box-shadow .15s steps(3)}
+.role:hover{transform:translateY(-2px);box-shadow:7px 7px 0 rgba(0,0,0,.3)}
 .tag{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;text-align:center;font-family:'Press Start 2P',monospace;font-size:10px;line-height:1.7;padding:7px 10px;background:rgba(6,4,20,.92);color:#e6f6ff;border:2px solid #3e6f95;box-shadow:3px 3px 0 rgba(0,0,0,.5);transition:color .2s steps(2),border-color .2s steps(2),box-shadow .2s steps(2)}
 .obj:hover .tag,.obj:focus-visible .tag{color:#fde047;border-color:#fde047}
 .wood{background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.16) 0 2px,transparent 2px 14px)}
@@ -89,6 +115,14 @@ img.px{image-rendering:pixelated;display:block}
 .field{display:flex;flex-direction:column;gap:6px;font-size:22px}
 .field input,.field textarea{font-family:'VT323',monospace;font-size:22px;padding:8px 10px;background:#f3ece0;color:#1b1f3b;border:3px solid #0b0f24;box-shadow:inset 3px 3px 0 #d3c8b4;outline:none}
 .field input:focus,.field textarea:focus{border-color:#0e7490}
+.field [aria-invalid="true"]{border-color:#b91c1c;box-shadow:inset 3px 3px 0 #f3c9c9}
+.field input::placeholder,.field textarea::placeholder{color:#8a8578}
+.cbtn{transition:transform .12s steps(2),filter .12s steps(2)}
+.cbtn:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.cbtn:active{transform:translate(2px,2px)}
+.sent-ok{margin:0;font-size:21px;color:#14532d}
+.pxbtn:disabled{opacity:.7;cursor:progress}
+.field .err{margin:0;font-size:19px;line-height:1.15;color:#a61b1b}
 
 /* ---------- keyboard focus ---------- */
 .obj:focus-visible,.nav:focus-visible,.pxbtn:focus-visible{outline:3px solid #fde047;outline-offset:3px}
@@ -109,9 +143,11 @@ img.px{image-rendering:pixelated;display:block}
 @keyframes beam{0%{opacity:.45}100%{opacity:1}}
 @keyframes pop{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 /* typewriter: VT323 is monospace, so a width of N ch shows exactly N characters.
-   --n is the line's length; the caret blinks a few times after typing, then goes. */
-.typed{width:calc(var(--n) * 1ch);white-space:nowrap;overflow:hidden;border-right:3px solid transparent;padding-right:2px;animation:type 2.2s steps(var(--n)) .6s both,caret .75s step-end 7}
-@keyframes type{from{width:0}}
+   --n is the line's length. The line types out, holds, erases and types again,
+   on a loop; steps(--n) applies to each stretch, so typing and erasing both go
+   one character at a time. */
+.typed{width:calc(var(--n) * 1ch);white-space:nowrap;overflow:hidden;border-right:3px solid transparent;padding-right:2px;animation:type 9s steps(var(--n)) .6s infinite both,caret .75s step-end infinite}
+@keyframes type{0%{width:0}28%{width:calc(var(--n) * 1ch)}74%{width:calc(var(--n) * 1ch)}88%{width:0}100%{width:0}}
 @keyframes caret{0%{border-right-color:#8fa6cf}50%{border-right-color:transparent}}
 @media (prefers-reduced-motion: reduce){*{animation:none !important;transition-duration:.01s !important}}
 </style>
@@ -121,8 +157,9 @@ img.px{image-rendering:pixelated;display:block}
 <!-- ========== SIDEBAR: who, where to, sky switch, résumé ========== -->
 <nav aria-label="Sections of Hari Priya's outpost" style="width: 260px; height: 900px; flex-shrink: 0; box-sizing: border-box; padding: 22px 18px; background: #070d1c; border-right: 4px solid #000; display: flex; flex-direction: column; gap: 18px; position: relative; z-index: 5;">
 <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;">
-<div class="pf" style="font-size: 12px; line-height: 1.2; color: #f2f8fc; white-space: nowrap;">%%NAME%%</div>
+<div class="pf sb-name" style="font-size: 12px; line-height: 1.2; color: #f2f8fc; white-space: nowrap;">%%NAME_LETTERS%%</div>
 <div style="font-size: 21px; line-height: 1.1; color: #9fb5e8; white-space: nowrap;">%%ROLE%%</div>
+%%AVAILABILITY_LINE%%
 </div>
 <div style="height: 3px; background: #1d2b4a;"></div>
 
@@ -733,24 +770,22 @@ img.px{image-rendering:pixelated;display:block}
 </div>
 <button class="pxbtn" onClick="{{goRoom}}">BACK</button>
 </div>
-<div style="display: flex; flex-direction: column; gap: 14px;">
-<a href="{{mailHref}}" style="display: flex; align-items: center; gap: 18px; padding: 16px 20px; background: #f3ece0; color: #14243c; text-decoration: none; box-shadow: 4px 4px 0 rgba(0,0,0,.4);">
-<span style="flex-shrink: 0; line-height: 0;">%%LOGO_MAIL%%</span>
-<span style="font-size: 27px; line-height: 1;">{{email}}</span>
-</a>
-<a href="%%LINKEDIN_URL%%" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; gap: 18px; padding: 16px 20px; background: #f3ece0; color: #14243c; text-decoration: none; box-shadow: 4px 4px 0 rgba(0,0,0,.4);">
-<span style="flex-shrink: 0; line-height: 0;">%%LOGO_LINKEDIN%%</span>
-<span style="font-size: 27px; line-height: 1;">%%LINKEDIN_TEXT%%</span>
-</a>
-</div>
 <form style="display: flex; flex-direction: column; gap: 12px; padding: 20px; background: #9fb0bd; border: 5px solid #22303c; box-shadow: 5px 5px 0 rgba(0,0,0,.4); color: #0a1020;">
 <div class="pf" style="font-size: 10px;">DROP A LETTER IN</div>
-<div class="field"><label for="c-name">Name</label><input id="c-name" type="text" value="{{cName}}" onChange="{{setName}}"></div>
-<div class="field"><label for="c-mail">Email</label><input id="c-mail" type="email" value="{{cMail}}" onChange="{{setMail}}"></div>
-<div class="field"><label for="c-msg">Message</label><textarea id="c-msg" rows="4" value="{{cMsg}}" onChange="{{setMsg}}"></textarea></div>
-<a class="pxbtn" href="{{letterHref}}" style="align-self: flex-start;">SEND IT DOWN</a>
-<p style="margin: 0; font-size: 21px; line-height: 1.25; color: #16202c;">This opens your own mail app with the letter written out, addressed to Hari Priya. It goes from your own email account, so press send there and she can reply straight to you.</p>
+<div class="field"><label for="c-name">Name</label><input id="c-name" type="text" placeholder="Your name" value="{{cName}}" onChange="{{setName}}" onBlur="{{touchName}}" aria-invalid="{{nameBad}}" aria-describedby="c-name-err"><sc-if value="{{nameBad}}" hint-placeholder-val="{{false}}"><p class="err" id="c-name-err">Name must be at least 2 characters</p></sc-if></div>
+<div class="field"><label for="c-mail">Email</label><input id="c-mail" type="email" placeholder="you@example.com" value="{{cMail}}" onChange="{{setMail}}" onBlur="{{touchMail}}" aria-invalid="{{mailBad}}" aria-describedby="c-mail-err"><sc-if value="{{mailBad}}" hint-placeholder-val="{{false}}"><p class="err" id="c-mail-err">Please enter a valid email address</p></sc-if></div>
+<div class="field"><label for="c-msg">Message</label><textarea id="c-msg" rows="4" placeholder="Say hi, or tell me about a role you're hiring for" value="{{cMsg}}" onChange="{{setMsg}}" onBlur="{{touchMsg}}" aria-invalid="{{msgBad}}" aria-describedby="c-msg-err"></textarea><sc-if value="{{msgBad}}" hint-placeholder-val="{{false}}"><p class="err" id="c-msg-err">Message must be at least 10 characters</p></sc-if></div>
+<button class="pxbtn" type="button" onClick="{{sendLetter}}" disabled="{{sending}}" style="align-self: flex-start;">{{sendLabel}}</button>
+<sc-if value="{{sentOk}}" hint-placeholder-val="{{false}}"><p class="sent-ok" role="status">Message sent! Hari Priya will get back to you soon.</p></sc-if>
+<sc-if value="{{sentFail}}" hint-placeholder-val="{{false}}"><p class="err" role="alert">Couldn&rsquo;t send just now. Please try again, or use Copy email below.</p></sc-if>
+<p style="margin: 0; font-size: 21px; line-height: 1.25; color: #16202c;">Your message goes straight to Hari Priya&rsquo;s inbox.</p>
 </form>
+<p style="margin: 0; font-size: 22px; color: #9fb5e8;">Prefer something else?</p>
+<div style="display: flex; gap: 14px;">
+<button class="cbtn" type="button" onClick="{{copyEmail}}" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 14px; padding: 12px 16px; font: inherit; background: #f3ece0; color: #14243c; border: 0; cursor: pointer; box-shadow: 4px 4px 0 rgba(0,0,0,.4);"><span style="line-height: 0;">%%LOGO_MAIL_SMALL%%</span><span style="font-size: 26px; line-height: 1;">{{copyLabel}}</span></button>
+<a class="cbtn" href="%%LINKEDIN_URL%%" target="_blank" rel="noopener noreferrer" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 14px; padding: 12px 16px; background: #f3ece0; color: #14243c; text-decoration: none; box-shadow: 4px 4px 0 rgba(0,0,0,.4);"><span style="line-height: 0;">%%LOGO_LINKEDIN_SMALL%%</span><span style="font-size: 26px; line-height: 1;">LinkedIn</span></a>
+%%GITHUB_BUTTON%%
+</div>
 </section>
 </sc-if>
 
@@ -770,23 +805,16 @@ class Component extends DCLogic {
     this.state = {
       view: 'home', open: null, proj: null, theme: p.startTheme === 'night' ? 'night' : 'day',  /* sunrise unless asked otherwise */
       px: 78, py: 270, face: 1, dur: '1.3s',
-      say: "Hi, I'm Ping! I'll be your guide around Hari Priya's outpost. Come on, let's dive in and explore!",
-      resume: false, hoverSay: null, art: null, cName: '', cMail: '', cMsg: ''
+      say: this.lines().home[0],
+      resume: false, hoverSay: null, art: null, cName: '', cMail: '', cMsg: '',
+      tName: false, tMail: false, tMsg: false, tried: false, copied: null, status: null
     };
     this.lastMove = 0;
   }
-  componentWillUnmount() { clearTimeout(this.t); }
+  componentWillUnmount() { clearTimeout(this.t); clearTimeout(this.copyT); }
   /* One line of Ping dialogue per place. */
   lines() {
-    return {
-      home: ["Hi, I'm Ping! I'll be your guide around Hari Priya's outpost. Come on, let's dive in and explore!"],
-      room: ["Have a look around. There's plenty to explore."],
-      skills: ["The shelf where Hari Priya keeps every skill. I dust it. I do not read it."],
-      projects: ["Hari Priya's projects live in here. Still warm, still running."],
-      experience: ["Hari Priya's journey so far, pinned up one note at a time."],
-      art: ["This is the art wall. Hari Priya made all of it. I mostly supervised."],
-      contact: ["Want to reach Hari Priya? Post it here. I handle deliveries personally."]
-    };
+    return %%PING_LINES_JS%%;
   }
   /* Where Ping stands, and the point the camera centres on, per place. */
   spots() {
@@ -812,16 +840,15 @@ class Component extends DCLogic {
   }
   /* The one place the contact address is written down. */
   email() { return '%%EMAIL_JS%%'; }
-  /* The letter the mailbox hands to the visitor's own mail app, rebuilt as they type.
-     The subject never changes. The body reads like an ordinary email: the message,
-     then the name and address signed underneath. The real From is whichever account
-     the visitor's mail app sends with. */
-  letterHref(st) {
-    const name = (st.cName || '').trim(), from = (st.cMail || '').trim(), msg = (st.cMsg || '').trim();
-    const subject = 'Hello from the outpost';
-    const sign = [name, from].filter(Boolean).join('\n');
-    const body = sign ? msg + '\n\n' + sign : msg;
-    return 'mailto:' + this.email() + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  /* The letter form's rules; an error shows once a field was left or sending was tried.
+     A valid letter is sent through Web3Forms (sendLetter), so it arrives with the
+     visitor's name as sender, their email as reply-to and their message as the body. */
+  letterChecks(st) {
+    return {
+      name: (st.cName || '').trim().length >= 2,
+      mail: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((st.cMail || '').trim()),
+      msg: (st.cMsg || '').trim().length >= 10
+    };
   }
   /* Ping speaks. A hovered line is transient and never overrides an open panel's. */
   say(text) {
@@ -968,7 +995,7 @@ class Component extends DCLogic {
 
     return Object.assign({}, this.palette(night), this.scenery(), this.navigation(st, night), {
       glow: glow, tx: cam.tx, ty: cam.ty, s: cam.s,
-      px: Math.round(st.px), py: Math.round(st.py), face: st.face, faceFlip: st.view === 'home' ? -1 : -st.face, dur: st.dur,
+      px: Math.round(st.px), py: Math.round(st.py), faceFlip: st.view === 'home' ? -1 : -st.face, dur: st.dur,
       pingSrc: (st.view === 'home') ? '/_blob/a7f5f6d223d9c34b80f7ce0919da0426' : '/_blob/bd4bf7e45b05a842798ae5da08e53e48',
       pw: (st.view === 'home') ? 158 : 152, ph: (st.view === 'home') ? 114 : 142,
       bobCls: (st.view === 'home') ? '' : 'bob',
@@ -996,11 +1023,40 @@ class Component extends DCLogic {
       })),
       resumeOpen: st.resume,
       cName: st.cName, cMail: st.cMail, cMsg: st.cMsg,
-      setName: (e) => this.setState({ cName: e.target.value }),
-      setMail: (e) => this.setState({ cMail: e.target.value }),
-      setMsg: (e) => this.setState({ cMsg: e.target.value }),
-      letterHref: this.letterHref(st),
-      email: this.email(), mailHref: 'mailto:' + this.email(),
+      setName: (e) => this.setState({ cName: e.target.value, status: null }),
+      setMail: (e) => this.setState({ cMail: e.target.value, status: null }),
+      setMsg: (e) => this.setState({ cMsg: e.target.value, status: null }),
+      nameBad: (st.tName || st.tried) && !this.letterChecks(st).name,
+      mailBad: (st.tMail || st.tried) && !this.letterChecks(st).mail,
+      msgBad: (st.tMsg || st.tried) && !this.letterChecks(st).msg,
+      touchName: () => { if (this.state.cName.trim()) this.setState({ tName: true }); },
+      touchMail: () => { if (this.state.cMail.trim()) this.setState({ tMail: true }); },
+      touchMsg: () => { if (this.state.cMsg.trim()) this.setState({ tMsg: true }); },
+      copyLabel: st.copied === 'ok' ? 'Copied!' : st.copied === 'fail' ? this.email() : 'Copy email',
+      copyEmail: () => {
+        const done = (how) => { this.setState({ copied: how }); clearTimeout(this.copyT); this.copyT = setTimeout(() => this.setState({ copied: null }), how === 'ok' ? 2000 : 8000); };
+        const clip = typeof navigator !== 'undefined' && navigator.clipboard;
+        if (clip) clip.writeText(this.email()).then(() => done('ok'), () => done('fail')); else done('fail');
+      },
+      sending: st.status === 'sending', sentOk: st.status === 'sent', sentFail: st.status === 'failed',
+      sendLabel: st.status === 'sending' ? 'SENDING...' : 'SEND IT DOWN',
+      sendLetter: () => {
+        const s = this.state, ok = this.letterChecks(s);
+        if (!(ok.name && ok.mail && ok.msg)) { this.setState({ tried: true, status: null }); return; }
+        const name = s.cName.trim();
+        this.setState({ status: 'sending' });
+        fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ access_key: '%%WEB3FORMS_KEY_JS%%', subject: 'Portfolio message from ' + name,
+            from_name: name, name: name, email: s.cMail.trim(), message: s.cMsg.trim() })
+        })
+          .then((r) => r.json())
+          .then((j) => this.setState(j.success
+            ? { status: 'sent', cName: '', cMail: '', cMsg: '', tName: false, tMail: false, tMsg: false, tried: false }
+            : { status: 'failed' }))
+          .catch(() => this.setState({ status: 'failed' }));
+      },
       openResume: () => this.setState({ resume: true }),
       closeResume: () => this.setState({ resume: false }),
       onMove: (e) => this.onMove(e),

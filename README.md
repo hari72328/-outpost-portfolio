@@ -46,10 +46,21 @@ There is no framework, no package manager and nothing to install.
 * **Built in checks.** Every build is checked for common mistakes, such as a
   missing value or an unclosed tag, and nothing is written if a check fails.
 * **Graphics.** The scenery is drawn with SVG and CSS. Characters, artwork and
-  resume pages are image files, kept crisp with `image-rendering: pixelated`.
+  resume pages are image files, scaled so they stay sharp.
 * **Fonts.** Press Start 2P for labels and VT323 for text, from Google Fonts.
-* **Contact.** The message form opens the visitor's own email app with the
-  message filled in, so no server is needed.
+* **Contact.** The message form sends through Web3Forms (web3forms.com), a free
+  form service: the message arrives in the inbox with the visitor's name as
+  sender and their email as the reply address. The key is `WEB3FORMS_KEY` in
+  `gen/content.py` and only works from the live site's address. Copy email and
+  LinkedIn are offered as alternatives.
+* **Phones.** On small screens the scene would be too small to read, so the
+  same content shows as one scrolling page instead: intro, then Experience,
+  Skills, Projects, Studio and Contact, each section keeping a touch of its
+  object in the cavern (cork board, bookshelf, computer window, frames,
+  airmail letter). It has a menu, a night (default) and sunrise theme that is
+  remembered per visitor, and Explore world buttons that open the full scene,
+  with the browser's back button returning to the same spot. It is built from
+  `content.py` by `mobile_view()` in `gen/panels.py`.
 
 ## Project structure
 
@@ -58,7 +69,9 @@ gen/                           source code and build scripts
   content.py                   all site content, start here
   main_template.html           the page: layout, styles and interactive logic
   panels.py                    turns content.py into pieces of the page
-  parts.json                   pixel art for the reef, fish, mailbox and icons
+  mobile.css                   the phone page's styles and two themes
+  mobile.js                    the phone page's behaviour
+  parts.json                   drawings for the reef, fish, mailbox and icons
   build.py                     assembles the page and runs the checks
   check.py                     the checks every build must pass
   serve.py                     local preview server
@@ -79,8 +92,17 @@ repository.
 rebuild. For example, the skills panel is the `SKILL_SHELVES` list, one line
 per shelf with its name, colour and skills.
 
-**Other wording** (the welcome message, the guide's speech lines, the sky
-descriptions) is in `gen/main_template.html`.
+**What Ping says** at each place is `PING_LINES` in `gen/content.py`; the
+world and the phone page both use it. Lines only the phone page uses are
+`PING_PHONE`, and the line introducing Ping there is `PING_INTRO`.
+
+**The phone page's introduction** is `INTRO` in `gen/content.py`.
+
+**Other wording** (the laptop welcome message, the sky descriptions) is in
+`gen/main_template.html`.
+
+**Experience** is `EXPERIENCE` in `gen/content.py`: each role's bullets, and the
+`skills` used in that role, which show when the role is opened.
 
 **Images and files** live in `static/_blob/`, each named with an id plus its
 extension, for example `3df64a6d88fe4f43c3836fb9e775d86e.png`. The site refers
@@ -97,9 +119,11 @@ to them as `/_blob/<id>`. To add one, copy it in under a new id (`md5 -q
    `content.py`.
 3. Rebuild and check the preview.
 
-**New artwork:** copy the image into `static/_blob/`, add its id and a short
-description to `ARTWORKS` in `content.py`, and rebuild. The gallery grid grows
-by itself.
+**New artwork:** copy the image into `static/_blob/`, make a small preview for
+the phone page (`magick art.jpg -resize 360x360 -quality 80 thumb.webp`, then
+copy it in under its own id), add both ids and a short description to
+`ARTWORKS` in `content.py` (`blob`, `thumb`, `alt`), and rebuild. The laptop
+gallery shows every piece; the phone shows the first `STUDIO_PHONE_COUNT`.
 
 **The typing effect:** any element with `class="typed"` types itself out. Set
 `--n` in its style to the number of characters in the text.
@@ -139,5 +163,5 @@ silently disappear:
   `renderVals()` instead.
 * Every `<sc-if>` and `<sc-for>` carries a `hint-*` attribute.
 * Text on the page uses no em or en dashes.
-* Labels in the pixel font use plain letters (RESUME, not RÉSUMÉ), because the
+* Labels in the Press Start 2P font use plain letters (RESUME, not RÉSUMÉ), because the
   font has no accented capitals.
